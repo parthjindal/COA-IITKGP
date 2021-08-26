@@ -1,14 +1,23 @@
-/**
- * @file RCA8.v
- * @assignment: Assignment 1
- * @problem: (1) Ripple Carry Adder
- * @description: Implementation for a 8-bit ripple carry adder using a full adder
- * @author Parth Jindal(19CS30033), Pranav Rajput(19CS30036)
- * @group X
- */
-
-`include "FA.v"
-
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date:    19:43:37 08/26/2021 
+// Design Name: 
+// Module Name:    RCA8 
+// Project Name: 
+// Target Devices: 
+// Tool versions: 
+// Description: 
+//
+// Dependencies: 
+//
+// Revision: 
+// Revision 0.01 - File Created
+// Additional Comments: 
+//
+////////////////////////////////////////////////////////////////////////////////
 module RCA8(s,cOut,cIn,a,b);
     input [7:0] a, b; //input bits
     input cIn; //carry in
