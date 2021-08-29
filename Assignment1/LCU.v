@@ -5,7 +5,7 @@
 // Problem: 2 Look-ahead Carry Unit
 // Description: The LCU is used inside the 16-bit CLA which optimizes the 16-bit Rippled CLA by adding block-level
 //					 propagate and generate signals
-// Group:  
+// Group: 24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module LCU(C,P,G,cIn);
