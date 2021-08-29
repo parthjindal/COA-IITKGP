@@ -1,28 +1,20 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    02:49:37 08/27/2021 
-// Design Name: 
-// Module Name:    CLA 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
+// Module Name:CLA 
+// Assignment: Lab-1
+// Problem: 2 (a) Carry Look-ahead adder (4-bit)
+// Group:  
+// Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module CLA(s,cOut,cIn,a,b);
-	input [3:0] a, b; input cIn;
-	output [3:0] s; output cOut;
-	wire [3:0] g,p;
-	wire [3:1] c;
+	input [3:0] a, b; //inputs
+	input cIn; //carry in
+	
+	output [3:0] s; //sum
+	output cOut; //carry out
+	
+	wire [3:0] g/*generators*/,p/*propogater*/;
+	wire [3:1] c; //intermediate carry wire connections
 	
 	assign g = a & b;
 	assign p = a ^ b;

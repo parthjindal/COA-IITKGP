@@ -1,30 +1,16 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    19:31:22 08/26/2021 
-// Design Name: 
-// Module Name:    FullAdder
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
+// Module Name: FullAdder
+// Assignment: Lab-1
+// Problem: 1-(b) Full Adder
+// Group: 24
+// Group Members: Parth Jindal, Pranav Rajput
+// Description: Full adder module for computing sum and carry of two inputs a,b and carry in c	
 //////////////////////////////////////////////////////////////////////////////////
 module FullAdder(s,cOut,cIn,a,b);
-	input a, b, cIn;
+	input a, b, cIn; 
 	output s, cOut;
-	wire s0,cOut0,cOut1; 
-
-   HalfAdder HA1(s0,cOut0,a,b);
-   HalfAdder HA2(s,cOut1,s0,cIn);
-   assign cOut = cOut0 | cOut1;
-
+	//Full Adder as a combinational circuit
+	assign s = cIn ^ (a ^ b);
+   assign cOut = (a & b) | (b & cIn) | (cIn & a);
 endmodule

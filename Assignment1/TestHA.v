@@ -1,25 +1,12 @@
 `timescale 1ns / 1ps
 
 ////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer:
-//
-// Create Date:   19:22:56 08/26/2021
-// Design Name:   HalfAdder
-// Module Name:   /home/parth/5th-Sem/Computer-Organization-and-Architecture-Laboratory/Assignment1/Q1/HA/TestHA.v
-// Project Name:  HA
-// Target Device:  
-// Tool versions:  
-// Description: 
-//
-// Verilog Test Fixture created by ISE for module: HalfAdder
-//
-// Dependencies:
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Module Name: TestHA
+// Assignment: Lab-1
+// Problem: 1-(a)
+// Group: 24
+// Group Members: Parth Jindal, Pranav Rajput
+// Description: Verilog test bench for the Half Adder module
 ////////////////////////////////////////////////////////////////////////////////
 
 module TestHA;

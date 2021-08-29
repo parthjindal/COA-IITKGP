@@ -1,22 +1,10 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    19:48:20 08/26/2021 
-// Design Name: 
-// Module Name:    RCA16 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
+// Module Name: RCA16
+// Assignment: Lab-1
+// Problem: 1-(c) Implementation of a 16 bit Ripple Carry Adder
+// Group:  
+// Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module RCA16(s,cOut,cIn,a,b);
     input [15:0] a, b; //inputs

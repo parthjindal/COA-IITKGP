@@ -1,22 +1,10 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    19:43:37 08/26/2021 
-// Design Name: 
-// Module Name:    RCA8 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
+// Module Name:    RCA8
+// Assignment: Lab-1
+// Problem: 1-(c) Implementation of a 8-bit Ripple Carry Adder
+// Group:  
+// Group Members: Parth Jindal, Pranav Rajput
 ////////////////////////////////////////////////////////////////////////////////
 module RCA8(s,cOut,cIn,a,b);
     input [7:0] a, b; //input bits
@@ -24,7 +12,8 @@ module RCA8(s,cOut,cIn,a,b);
     output [7:0] s; //sum
     output cOut; //carry out
     wire [7:1] c; //carry forward connections 
-
+	 
+	 //Instantiate 8 cascaded FullAdder modules
     FullAdder FA1(s[0],c[1],cIn,a[0],b[0]);
     FullAdder FA2(s[1],c[2],c[1],a[1],b[1]);
     FullAdder FA3(s[2],c[3],c[2],a[2],b[2]);

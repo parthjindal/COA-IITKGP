@@ -1,24 +1,13 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    19:10:54 08/26/2021 
-// Design Name: 
-// Module Name:    HalfAdder
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
+// Module Name: HalfAdder
+// Assignment: Lab-1
+// Problem: 1-(a)
+// Group: 24
+// Group Members: Parth Jindal, Pranav Rajput
+// Description: Half adder for computing sum and carry for 2 binary bits
 //////////////////////////////////////////////////////////////////////////////////
-module HalfAdder(s, c, a, b);
+module HalfAdder(s/*sum*/, c/*carry*/, a/*inp*/, b/*inp*/);
     input a, b;
     output s, c;
     assign s = a ^ b;

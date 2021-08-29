@@ -1,22 +1,10 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date:    19:54:38 08/26/2021 
-// Design Name: 
-// Module Name:    RCA32 
-// Project Name: 
-// Target Devices: 
-// Tool versions: 
-// Description: 
-//
-// Dependencies: 
-//
-// Revision: 
-// Revision 0.01 - File Created
-// Additional Comments: 
-//
+// Module Name: RCA32
+// Assignment: Lab-1
+// Problem: 1-(c) Implementation of a 32 bit Ripple Carry Adder
+// Group:  
+// Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module RCA32(s,cOut,cIn,a,b);
     input [31:0] a, b; //inputs

@@ -4,21 +4,25 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-module TestFA;
+module TestCLA16_2;
 
 	// Inputs
 	reg cIn;
-	reg a;
-	reg b;
+	reg [15:0] a;
+	reg [15:0] b;
 
 	// Outputs
-	wire s;
+	wire [15:0] s;
 	wire cOut;
+	wire [3:0] P;
+	wire [3:0] G;
 
 	// Instantiate the Unit Under Test (UUT)
-	FullAdder uut (
+	CLA16_2 uut (
 		.s(s), 
 		.cOut(cOut), 
+		.P(P), 
+		.G(G), 
 		.cIn(cIn), 
 		.a(a), 
 		.b(b)
@@ -34,12 +38,11 @@ module TestFA;
 		#100;
         
 		// Add stimulus here
-		$monitor($time,"\ta=%b,\tb=%b,\tcIn=%b,\ts=%b,\tcOut=%b",a,b,cIn,s,cOut);
-		#1 a = 0; b = 1; cIn = 0;
-		#1 a = 1; b = 1; cIn = 0;
-		#1 a = 1; b = 1; cIn = 1;
-
+		$monitor($time,"\ta=%d,\tb=%d,\tcIn=%b,\ts=%d,\tcOut=%b",a,b,cIn,s,cOut);
+		#1 a =    32; b = 64; cIn = 0;
+		#1 a =    32; b = 64; cIn = 1;
+		#1 a = 65531; b =  4; cIn = 0;
+		#1 a = 65531; b =  4; cIn = 1;
 	end
-      
 endmodule
 
