@@ -3,7 +3,7 @@
 // Module Name:CLA16
 // Assignment: Lab-1
 // Problem: 2 (a) Carry Look-ahead adder (16-bit) implemented by rippling carry out from a 4-bit CLA module
-// Group:  
+// Group:  24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module CLA16(s,cOut,cIn,a,b);
