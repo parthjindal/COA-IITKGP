@@ -1,7 +1,11 @@
 `timescale 1ns / 1ps
 
 ////////////////////////////////////////////////////////////////////////////////
-
+// Module Name: TestCLA16_2
+// Assignment: Lab-1
+// Problem: 2 (a)Testing the Carry Look-ahead adder for 16bit using the Augmented CLA unit (using block propogates)
+// Group:  24
+// Group Members: Parth Jindal, Pranav Rajput
 ////////////////////////////////////////////////////////////////////////////////
 
 module TestCLA16_2;
