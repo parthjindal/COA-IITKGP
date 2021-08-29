@@ -3,7 +3,7 @@
 // Module Name: RCA64
 // Assignment: Lab-1
 // Problem: 1-(c) Implementation of a 64 bit Ripple Carry Adder
-// Group:  
+// Group:  24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module RCA64(s,cOut,cIn,a,b);
