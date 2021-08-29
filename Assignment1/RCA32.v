@@ -3,7 +3,7 @@
 // Module Name: RCA32
 // Assignment: Lab-1
 // Problem: 1-(c) Implementation of a 32 bit Ripple Carry Adder
-// Group:  
+// Group:  24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module RCA32(s,cOut,cIn,a,b);
