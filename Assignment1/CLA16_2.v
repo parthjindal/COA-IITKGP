@@ -5,7 +5,7 @@
 // Problem: 2 (a) Carry Look-ahead adder for 16bit using the Augmented CLA unit (using block propogates)
 // Description: The augmented CLA16 module also has output P[3:0] and G[3:0] bits unlike the Base-CLA module,
 //					 We can use the P and G unit for block propogation and generation in further blocks such as 32-bit or 64-bit
-// Group:  
+// Group:  24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module CLA16_2(s,cOut,P,G,cIn,a,b);
