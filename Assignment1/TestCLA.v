@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 ////////////////////////////////////////////////////////////////////////////////
-// Module Name:Test CLA 
+// Module Name: TestCLA 
 // Assignment: Lab-1
 // Problem: Testing the Carry Look-ahead adder (4-bit)
 // Group:  24
