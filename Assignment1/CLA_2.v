@@ -6,7 +6,7 @@
 // Description: The augmented CLA module also has output P and G bits unlike the Base-CLA module,
 //					 Unlike The Non-augmented CLA there is no output carry-out bit (can be computed using,
 //					(G or (P and CarryIn)). We can use the P and G unit for block propogation and generation
-// Group:  
+// Group:  24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module CLA_2(s,P,G,cIn,a,b);
