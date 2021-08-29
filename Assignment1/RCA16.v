@@ -3,7 +3,7 @@
 // Module Name: RCA16
 // Assignment: Lab-1
 // Problem: 1-(c) Implementation of a 16 bit Ripple Carry Adder
-// Group:  
+// Group:  24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module RCA16(s,cOut,cIn,a,b);
