@@ -3,7 +3,7 @@
 // Module Name:    RCA4
 // Assignment: Lab-1
 // Problem: 2 (4-bit RCA for comparison with a 4-bit CLA)
-// Group:  
+// Group: 24 
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module RCA4(s,cOut,cIn,a,b);
