@@ -3,7 +3,7 @@
 // Module Name:CLA 
 // Assignment: Lab-1
 // Problem: 2 (a) Carry Look-ahead adder (4-bit)
-// Group:  
+// Group: 24
 // Group Members: Parth Jindal, Pranav Rajput
 //////////////////////////////////////////////////////////////////////////////////
 module CLA(s,cOut,cIn,a,b);
