@@ -31,7 +31,11 @@ main:
     ble	$s0, $t0, error # sanity check for a <= 0
     li  $s1, 2       # s2 = 2
 loop:
-    bge $s1, $s0, prime # if i >= a, break
+    mult $s0, $s0	# calculating i*i
+    mfhi $t0	# storing the higher 32 bits of i*i in t0 register
+    mflo $t1	# storing the lower 32 bits of i*i in t0 register
+    bne $t0, $zero, prime # if i*i > a, break  
+    bgt $t1, $s0, prime # if i*i > a, break
     rem $s2 , $s0, $s1 # remainder
     beq $s2, $zero, composite # if remainder is not zero, then continue  
     addi $s1, $s1, 1 # i = i + 1
