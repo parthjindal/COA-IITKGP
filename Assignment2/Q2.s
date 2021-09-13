@@ -1,6 +1,8 @@
 # Program to find the GCD of two non negative integers
 # Author: Parth Jindal, Pranav Rajput
 # Date: 01/09/2021
+# Assignment: Lab-2
+#-------------------------------------------------------------------------------
 	.globl  main
 
 	.data
@@ -20,7 +22,7 @@ newline:
     .text
 main:
 	li	$v0, 4          # issue prompt
-    la	$a0, prompt1
+    la	$a0, prompt1    # load prompt1's address
     syscall	
 
     li	$v0, 5          # get a from user

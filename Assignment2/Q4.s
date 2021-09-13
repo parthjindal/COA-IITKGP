@@ -1,6 +1,8 @@
 # Program to find if a given number is a perfect number or not
-# Author: Parth Jindal, Pranav Rajput
+# Author: Parth Jindal(19CS30033), Pranav Rajput(19CS30036)
 # Date: 01/09/2021
+# Assignment: Lab-2
+#-------------------------------------------------------------------------------------------------------
 	.globl  main
 
 	.data
@@ -54,7 +56,7 @@ perfect:
     syscall
 error:
 	li	$v0, 4          # issue prompt
-	la	$a0, eprompt    # error prompt when input is less than zero
+	la	$a0, eprompt    # error prompt when input is less than equal to zero
 	syscall
 
 	li	$v0, 10         # exit
