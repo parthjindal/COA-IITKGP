@@ -2,7 +2,7 @@
 #	Group No.: 24
 # 	Members: Pranav Rajput(19CS30036), Parth Jindal(19CS30031)
 #	Semester: Autumn, 2021
-#	Question: 1
+#	Question: 2
 #	Description: Program to Compute Product of 2 numbers via Booth's Multiplication Algorithm
 
     .data
