@@ -88,8 +88,8 @@ main:
 
 error_prog:
     la $a0, error_msg   # loading address of string into a0
-    li $v0, 4   # loading v0 with 4 to set for print_string
-    j exit      # unconditional jump to exit
+    li $v0, 4           # loading v0 with 4 to set for print_string
+    j exit              # unconditional jump to exit
 
 
 multiply_booth:
