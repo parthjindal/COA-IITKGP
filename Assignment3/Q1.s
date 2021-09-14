@@ -98,15 +98,15 @@ multiply_booth:
     li $v0, 0       # v0 (ans) = 0 initialization
 
     rec:
-        andi $t2, $a0, 1 # t stores LSB as (a & 1) = first digit of a in binary representation
+        andi $t2, $a0, 1                 # t stores LSB as (a & 1) = first digit of a in binary representation
         beq $t1, $t2, right_shift        # if q0 = q-1 ( 00 or 11 then shift) branch to right_shift
-        beq $t1, 1, add_mul    # if q0q-1 = 01 then branch to add_mul
-        beq $t1, 0, sub_mul    # if q0q-1 = 10 then branch to sub_mul
+        beq $t1, 1, add_mul              # if q0q-1 = 01 then branch to add_mul
+        beq $t1, 0, sub_mul              # if q0q-1 = 10 then branch to sub_mul
 
         right_shift:
-            move $t1, $t2   # move value of q0 to q-1 (in general qi+1 to qi)
-            sra $v0, $v0, 1 # arithmetic right shift for answer
-            addi $t0, $t0, -1   # count = count - 1
+            move $t1, $t2               # move value of q0 to q-1 (in general qi+1 to qi)
+            sra $v0, $v0, 1             # arithmetic right shift for answer
+            addi $t0, $t0, -1           # count = count - 1
             # the next LSB is calculated at the top of rec
 
         bgt $t0, 0, rec # if t0 (count) > 0 jump to rec
