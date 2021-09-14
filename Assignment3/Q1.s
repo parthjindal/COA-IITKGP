@@ -93,20 +93,21 @@ error_prog:
 
 
 multiply_booth:
-    li $t0, 16           # t0(count) = 16
-    li $t1, 0            # t1(Q-1) = 0 for initial case
-    li $v0, 0          # v0 (ans) = 0 initialization
+    li $t0, 16               # t0(count) = 16
+    li $t1, 0                # t1(Q-1) = 0 for initial case
+    move $v0, $a1            # v0 (ans) = b initialization
+
+    sll $a0, $a0, 16         # a = a*2^16 left shift by 16 bytes
 
     rec:
-        andi $t2, $a0, 1                 # t stores LSB as (a & 1) = first digit of a in binary representation
+        andi $t2, $v0, 1                 # t stores LSB as (a & 1) = first digit of a in binary representation
         beq $t1, $t2, right_shift        # if q0 = q-1 ( 00 or 11 then shift) branch to right_shift
         beq $t1, 1, add_mul              # if q0q-1 = 01 then branch to add_mul
         beq $t1, 0, sub_mul              # if q0q-1 = 10 then branch to sub_mul
 
         right_shift:
             move $t1, $t2           # move value of q0 to q-1 (in general qi+1 to qi)
-            sra $v0, $v0, 1         # arithmetic right shift for answer
-            sra $a0, $a0, 1         # arithmetic right shift for answer
+            sra $v0, $v0, 1         # arithmetic right shift 
             addi $t0, $t0, -1       # count = count - 1
             # the next LSB is calculated at the top of rec
 
@@ -115,9 +116,9 @@ multiply_booth:
     jr $ra                  # jump to return address in ra 
 
     add_mul:
-        add $v0, $v0, $a1   # ans = ans + b
-        j right_shift
+        add $v0, $v0, $a0   # ans = ans + a
+        j right_shift       # jump to right_shift
 
     sub_mul:
-        sub $v0, $v0, $a1   # ans = ans - b
-        j right_shift
+        sub $v0, $v0, $a0   # ans = ans - a
+        j right_shift       # jump to right_shift
