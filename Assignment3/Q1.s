@@ -45,7 +45,7 @@ main:
     li $v0, 5           # setting v0 to 5 for read_int
     syscall             # syscall to read_int
 
-    move $s1, $v0       # storing inputted value(a) from v0 to s0
+    move $s1, $v0       # storing inputted value(b) from v0 to s1
 
     # sanity check 
     # -2^15 <= x <= 2^15 -1 ( 16 bit unsigned integer )
