@@ -45,7 +45,7 @@ main:
     li $v0, 5           # setting v0 to 5 for read_int
     syscall             # syscall to read_int
 
-    move $s1, $v0       # storing inputted value(b) from v0 to s1
+    move $s1, $v0       # storing inputted value(a) from v0 to s0
 
     # sanity check 
     # -2^15 <= x <= 2^15 -1 ( 16 bit unsigned integer )
@@ -87,15 +87,15 @@ main:
 
 
 error_prog:
-    la $a0, error_msg   # loading address of string into a0
-    li $v0, 4           # loading v0 with 4 to set for print_string
-    j exit              # unconditional jump to exit
+    la $a0, error_msg       # loading address of string into a0
+    li $v0, 4               # loading v0 with 4 to set for print_string
+    j exit                  # unconditional jump to exit
 
 
 multiply_booth:
-    li $t0, 16      # t0(count) = 16
-    li $t1, 0       # t1(Q-1) = 0 for initial case
-    li $v0, 0       # v0 (ans) = 0 initialization
+    li $t0, 16           # t0(count) = 16
+    li $t1, 0            # t1(Q-1) = 0 for initial case
+    li $v0, 0          # v0 (ans) = 0 initialization
 
     rec:
         andi $t2, $a0, 1                 # t stores LSB as (a & 1) = first digit of a in binary representation
@@ -104,27 +104,20 @@ multiply_booth:
         beq $t1, 0, sub_mul              # if q0q-1 = 10 then branch to sub_mul
 
         right_shift:
-            move $t1, $t2               # move value of q0 to q-1 (in general qi+1 to qi)
-            sra $v0, $v0, 1             # arithmetic right shift for answer
-            addi $t0, $t0, -1           # count = count - 1
+            move $t1, $t2           # move value of q0 to q-1 (in general qi+1 to qi)
+            sra $v0, $v0, 1         # arithmetic right shift for answer
+            sra $a0, $a0, 1         # arithmetic right shift for answer
+            addi $t0, $t0, -1       # count = count - 1
             # the next LSB is calculated at the top of rec
 
-        bgt $t0, 0, rec # if t0 (count) > 0 jump to rec
+        bgt $t0, 0, rec             # if t0 (count) > 0 jump to rec
 
-    jr $ra          # jump to return address in ra 
+    jr $ra                  # jump to return address in ra 
 
     add_mul:
         add $v0, $v0, $a1   # ans = ans + b
+        j right_shift
 
     sub_mul:
         sub $v0, $v0, $a1   # ans = ans - b
-
-
-
-
-
-
-
-
-
-
+        j right_shift
