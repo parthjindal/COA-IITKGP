@@ -26,30 +26,30 @@ space:
     .globl main
 
 main:
-    move $s0, $ra    # save return address to push later after initializing stack frame
+    move $s0, $ra   # save return address to push later after initializing stack frame
     jal initStack   # initialize stack
 
-    move $a0, $s0    # $a0 = $ra
+    move $a0, $s0   # $a0 = $ra
     jal pushToStack # push ra to stack
 
-    la $a0, input_prompt # loading address of string into a0
-    li $v0, 4           # setting v0 to 4 for print_string
+    la $a0, input_prompt    # loading address of string into a0
+    li $v0, 4               # setting v0 to 4 for print_string
     syscall
 
     la $t0, array       # loading address of array into temporary register
     li $t1, 0           # loop counter(i) = 0
 
-input_loop:         # loop to input the value of array
+input_loop:             # loop to input the value of array
 
-    addi $t1, $t1, 1 # incrementing loop counter i++
+    addi $t1, $t1, 1    # incrementing loop counter i++
 
-    li $v0, 5       # setting v0 to 5 to input integer  
-    syscall         # system call
+    li $v0, 5           # setting v0 to 5 to input integer  
+    syscall             # system call
 
-    move $t2, $v0   # moving read value(array[i]) to temporary register
-    sw $t2, 0($t0)   # array[i] = input_value ; storing value in t1 at address in t0
+    move $t2, $v0       # moving read value(array[i]) to temporary register
+    sw $t2, 0($t0)      # array[i] = input_value ; storing value in t1 at address in t0
 
-    add $t0, $t0, 4 # incrementing t0 by 4 bytes so that it can point at position of next element
+    add $t0, $t0, 4     # incrementing t0 by 4 bytes so that it can point at position of next element
 
     blt $t1, 10, input_loop # branch to input_loop if t1(i) < 10
     
@@ -77,40 +77,47 @@ exit:
     jr $ra
 recursive_sort:
 
-    move $s0, $a0       # s0: base address of a
-    move $s1, $a1       # s1: left
-    move $s2, $a2       # s2: right
+    move $t0, $a0       # s0: base address of a
 
     # save arguments to stack for recursive call
     move $a0, $ra       # $a0 = $ra
     jal pushToStack     # push ra to stack
 
-    move $a0, $s0       # $a0 = $s0
-    jal pushToStack     # push base address of a to stack
+    move $a0, $t0       # 
+    jal pushToStack     # save base address
 
-    move $a0, $s1       # $a0 = $s1
+    move $a0, $a1
     jal pushToStack     # push left to stack
-    
-    move $a0, $s2       
+
+    move $a0, $a2
     jal pushToStack     # push right to stack
 
-    move $a0, $s3       #  
-    jal pushToStack
+    move $a0, $s0       # push callee save register s0
+    jal pushToStack     # 
 
-    move $s3, $s1       # p = left
+    move $a0, $s1       # push callee save register s1
+    jal pushToStack     
+    
+    move $a0, $s2       # push callee save register s2
+    jal pushToStack     
+
+    move $s0, $t0       # base address
+    move $s1, $a1       # l = left
+    move $s2, $a2       # r = right
 
     outer_while:
-        bge $s1, $s2, L3     # if (l > r, break)
+        bge $s1, $s2, L3     # if (l >= r, break)
         
         while1:
-            lw $t0,  -4($sp)         # t0 = right
+            lw  $t0, 12($sp)        # t0 = right
             bge $s1, $t0, while2    # (l >= right, break)
             sll $t2, $s1, 2         # t2 = l * 4
             add $t2, $t2, $s0       # t2 = &a[l]
             lw  $t3, 0($t2)         # t3 = a[l]
             
-            sll $t2, $s3, 2         # t2 = p * 4
-            add $t2, $t2, $s3       # t2 = &a[p]
+            lw  $t0, 16($sp)        # t0 = p
+            sll $t2, $t0, 2         # t2 = p * 4
+            add $t2, $t2, $s0       # t2 = &a[p]
             lw  $t4, 0($t2)         # t4 = a[p]
     
             bgt $t3, $t4  while2    # a[l] > a[p], break
@@ -119,41 +126,43 @@ recursive_sort:
             j while1
         
         while2:
-            lw $t0,  -8($sp)        # t0 = left
-            ble $s2, $t0, while2    # (r <= left, break)
+            lw  $t0, 16($sp)        # t0 = left
+            ble $s2, $t0, L1        # (r <= left, break)
             sll $t2, $s2, 2         # t2 = r * 4
             add $t2, $t2, $s0       # t2 = &a[r]
             lw  $t3, 0($t2)         # t3 = a[r]
             
-            sll $t2, $s3, 2         # t2 = p * 4
-            add $t2, $t2, $s3       # t2 = &a[p]
+            lw  $t0, 16($sp)        # t0 = p
+            sll $t2, $t0, 2         # t2 = p * 4
+            add $t2, $t2, $s0       # t2 = &a[p]
             lw  $t4, 0($t2)         # t4 = a[p]
 
             blt $t3, $t4, L1        # a[r] < a[p], break
-            addi $s1, -1            # r--
+            addi $s2, -1            # r--
         
             j while2
         L1:
             blt $s1, $s2, L2        # if l < r , goto L2
 
-            sll $t0, $s3, 2         # t0 = p * 4
+            lw  $t0, 16($sp)        # t0 = p 
+            sll $t0, $t0, 2         # t0 = p * 4
             add $t0, $t0, $s0       # t0 = &a[p]
 
             sll $t1, $s2, 2         # t1 = r * 4
-            add $t1, $t1, $s0       # t1 = &a[p]
+            add $t1, $t1, $s0       # t1 = &a[r]
 
             move $a0, $t0           # load argument 1 
             move $a1, $t1           # load argument 2
             jal SWAP                # swap(array[p], array[r])
 
             move $a0, $s0           # arg1 = &a[0]
-            lw   $a1, -8($sp)       # arg2 = left
+            lw   $a1, 16($sp)       # arg2 = left
             addi $a2, $s2, -1       # arg3 = r-1
             jal recursive_sort      
 
             move $a0, $s0           # arg1 = &a[0]
             addi $a1, $s2, 1        # arg2 = r + 1
-            lw   $a2, -4($sp)       # arg3 = right
+            lw   $a2, 12($sp)       # arg3 = right
             jal recursive_sort
 
             j L3                    # cleanup stack and restore save registers
@@ -170,12 +179,11 @@ recursive_sort:
 
         j outer_while
     L3:
-        lw $ra, -16($sp)
-        lw $s0, -12($sp)
-        lw $s1, -8($sp)
-        lw $s2, -4($sp)
-        lw $s3,  0($sp)
-        addi $sp, $sp, 20
+        lw $ra, 24($sp)
+        lw $s0, 8($sp)
+        lw $s1, 4($sp)
+        lw $s2, 0($sp)
+        addi $sp, $sp, 28
         jr $ra
 
 initStack:
