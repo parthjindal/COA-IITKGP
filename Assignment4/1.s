@@ -194,7 +194,7 @@ recursive_Det:          # recursive function to calculate determinant of matrix 
     move $a0, $ra       # moving return address into a0
     jal pushToStack     # pushing return address (initial state into stack)
 
-    jr $ra              # returning to next statement from call point
+   # jr $ra              # returning to next statement from call point
 
     bne $t0, 1, L1      # if n != 1 jump to L1
 
@@ -268,6 +268,7 @@ L2:
     blt $t2, $t0, outer_loop    # if i < n keep looping
 
     # return 
+    lw $ra, -8($sp)
     addi $sp, $sp, 12   # popping elements
     jr $ra              # jumping back to caller
 
