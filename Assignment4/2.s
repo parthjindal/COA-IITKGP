@@ -3,7 +3,7 @@
 # 	Members: Pranav Rajput(19CS30036), Parth Jindal(19CS30031)
 #	Semester: Autumn, 2021
 #	Question: 2
-#	Description: Program to print sorted array; sorted using recursive sort function
+#	Description: Program to print sorted array using recursive sort function
 
     .data
 
@@ -70,72 +70,127 @@ input_loop:         # loop to input the value of array
     syscall             # system call to print_string
 
 exit:
-    li $v0, 10      # exit 
-    syscall         # system call for exit
+    lw $ra, -4($fp)     # restore ra
+    move $sp, $fp       # restore stack pointer
+    lw $fp, 0($sp)      # restore frame pointer
+    addi $sp, 4         # pop return address
+    
+    jr $ra
 
 recursive_sort:
 
+    move $s0, $a0
+    move $s1, $a1
+    move $s2, $a2
+
+    move $a0, $s0
     jal pushToStack # push &array[0] into stack
 
     move $a0, $ra
     jal pushToStack # Push return address into stack
 
-    move $t0, $a1   # l = left
-    move $t1, $a2   # r = right
-    move $t2, $a1   # p = left
-
-    move $a0, $a1
+    move $a0, $s1
     jal pushToStack # push left into stack
 
-    move $a0, $a2
+    move $a0, $s2
     jal pushToStack # push right into stack
 
-    lw $a0, 0($sp)  # a0 = &array[0]
+    
+    move $t0, $s1   # l = left
+    move $t1, $s2   # r = right
+    move $t2, $s1   # p = left
+
 
     outer_while:
         bge $t0, $t1, L3    # ( l >= r then break )
 
         move $t3, $t2       # t3 = p
         sll $t3, $t3, 2     # t3 *= 4 
-        add $t3, $t3, $a0   # t3 = &array[p]
+        add $t3, $t3, $s0   # t3 = &array[p]
 
         while1: 
-            bge $t0, $a2, L1    # if l >=right break
+            bge $t0, $s2, while2    # if l >= right break
 
             move $t4, $t0       # t4 = l
             sll $t4, $t4, 2     # t4 *= 4 
-            add $t4, $t4, $a0   # t4 = array[l]
+            add $t4, $t4, $s0   # t4 = &array[l]
             lw $t4, ($t4)       # t4 = array[l]
 
-            lw $t5, ($t3)       # t5 = arrray[p]
+            lw $t5, ($t3)       # t5 = array[p]
 
-            bgt $t4, $t5, L1    # if array[l] > array[p] break
+            bgt $t4, $t5, while2    # if array[l] > array[p] break
 
             addi $t0, $t0, 1    # l++ ;
             j while1
 
         while2:
-            ble $t1, $a1, L1    # if r <= left break
+            ble $t1, $s1, L1    # if r <= left break
 
             move $t4, $t1       # t4 = r
             sll $t4, $t4, 2     # t4 *= 4 
-            add $t4, $t4, $a0   # t4 = array[r]
+            add $t4, $t4, $s0   # t4 = array[r]
             lw $t4, ($t4)       # t4 = array[r]
 
             lw $t5, ($t3)       # t5 = arrray[p]
 
             bgt $t4, $t5, L1    # if array[l] > array[p] break
 
-            addi $t1, $t1, -1
+            addi $t1, $t1, -1   # r--
             j while2
 
-        L1:
+            L1:
+            blt $t0, $t1, L2    # if l < r , goto L2
 
-        L2:
+            move $t4, $t1       # t4 = r
+            sll $t4, $t4, 2     # t4 *= 4 
+            add $t4, $t4, $s0   # t4 = array[r]
 
+            move $a0, $t3
+            move $a1, $t4
+            jal SWAP            # swap(array[p], array[r])
+
+            move $a0, $t1
+            jal pushToStack     # pushing r to stack
+
+            move $a0, $s0       # &array[0]
+            move $a1, $s1       # newl = left
+            addi $a2, $t1, -1   # newr = r - 1
+
+            jal recursive_sort
+
+            lw $t1, -16($sp)    # reloading r
+            lw $s0, 0($sp)      # reloading &array[0]
+            lw $s2, -12($sp)    # reloading right
+
+            move $a0, $s0       # &array[0]
+            addi $a1, $t1, 1    # newl = r + 1
+            move $a2, $s2       # newr = right
+
+            jal recursive_sort
+
+            lw $ra, -4($sp)
+            addi $sp, $sp, 20
+            jr $ra
+            
+            L2:
+
+            move $t4, $t0       # t4 = l
+            sll $t4, $t4, 2     # t4 *= 4 
+            add $t4, $t4, $s0   # t4 = &array[l]
+
+            move $t6, $t1       # t6 = r
+            sll $t6, $t6, 2     # t6 *= 4 
+            add $t6, $t6, $s0   # t6 = array[r]
+
+            move $a0, $t4
+            move $a1, $t6
+            jal SWAP            # swap(a[l], a[r])
         j outer_while
     L3:
-    jr $ra
+        lw $ra, -4($sp)
+        addi $sp, $sp, 16
+        jr $ra
+
 
 initStack:
     addi $sp, $sp, -4   # decrement stack pointer by 4
@@ -149,11 +204,11 @@ pushToStack:
     jr $ra              # return
 
 SWAP:
-    lw $t0, ($a0)
-    lw $t1, ($a1)
+    lw $t4, ($a0)
+    lw $t6, ($a1)
 
-    sw $t0, ($a1)
-    sw $t1, ($a0)
+    sw $t4, ($a1)
+    sw $t6, ($a0)
 
     jr $ra
 
