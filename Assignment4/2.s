@@ -79,12 +79,11 @@ recursive_sort:
 
     move $t0, $a0       # s0: base address of a
 
-    # save arguments to stack for recursive call
+    # save arguments(left,right) to stack for recursive call
+    # note: no need to store base address as that get's restored from s0
+    # total: 24 bytes stored on stack
     move $a0, $ra       # $a0 = $ra
     jal pushToStack     # push ra to stack
-
-    move $a0, $t0       # 
-    jal pushToStack     # save base address
 
     move $a0, $a1
     jal pushToStack     # push left to stack
@@ -179,11 +178,11 @@ recursive_sort:
 
         j outer_while
     L3:
-        lw $ra, 24($sp)
+        lw $ra, 20($sp)
         lw $s0, 8($sp)
         lw $s1, 4($sp)
         lw $s2, 0($sp)
-        addi $sp, $sp, 28
+        addi $sp, $sp, 24
         jr $ra
 
 initStack:
