@@ -72,7 +72,7 @@ exit:
     lw $ra, -4($fp)     # restore ra
     move $sp, $fp       # restore stack pointer
     lw $fp, 0($sp)      # restore frame pointer
-    addi $sp, 8         # pop return address
+    addi $sp, 4         # pop return address
     
     jr $ra
 recursive_sort:

@@ -9,6 +9,8 @@
 
 array:                  # space allocation for an array of 10 integers (4*10 = 40 bytes)
     .space 40
+prompt1:
+    .asciiz "Enter 10 integer array elements\n"
 
 input_prompt:
     .asciiz "Enter k: "
@@ -26,6 +28,10 @@ newline:
     .globl main
 
 main:
+    li $v0, 4          # print prompt1
+    la $a0, prompt1
+    syscall
+
     la $t0, array       # loading address of array into temporary register
     li $t1, 0           # loop counter(i) = 0
 
