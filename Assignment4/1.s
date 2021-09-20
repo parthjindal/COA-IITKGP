@@ -48,7 +48,7 @@ main:
     jal pushToStack # push r onto stack
     
 
-    # compute product of m and n
+    # compute product of n and n
     lw $t0, -8($fp)     # n
     mult $t0, $t0 
     mflo $t0            # store product in $t0 = n * n
@@ -98,28 +98,6 @@ end:
     mult $a0, $a0
     mflo $a0             # a0 = (n-1)^2
     jal mallocInStack    # malloc 
-
-    move $a0, $s0       # a0 = &array[0]
-    move $a1, $v0       # a1 = &submatrix[0]
-    lw $a2, -8($fp)     # a2 = n
-    li $a3, 0           # column skip
-    jal generateSubMatrix
-
-    lw $a0, -8($fp)     # n
-    addi $a0, $a0, -1   # n-1
-    move $a1, $v0       # base address of array
-    jal printMatrix     # call to function printMatrix
-
-    li $v0, 4          
-    la $a0, newline      # print newline
-    syscall
-
-    lw $a0, -8($fp)
-    addi $a0, $a0, -1   # a0 = n-1
-    mult $a0, $a0
-    mflo $a0            # a0 = (n-1)^2
-    sll $a0, $a0, 2
-    add $sp, $sp, $a0   # deallocating 
 
     lw $a0, -8($fp)     # n
     move $a1, $s0       # base address of array
@@ -172,9 +150,105 @@ mallocInStack:
 popFromStack:
     lw $v0, 0($sp) 
 
+
 recursive_Det:
-    li $v0, 0 
-    jr $ra
+    # a0 = &array[0]
+    # a1 = n
+
+    move $t0, $a0       # temporary save to t0 to empty a0
+
+    move $a0, $ra
+    jal pushToStack     # saving return address on stack
+
+    move $a0, $s0
+    jal pushToStack     # callee save register s0
+
+    move $a0, $s1
+    jal pushToStack     # callee save register s1
+
+    move $s0, $t0       # s0 = &a[0][0]
+    move $s1, $a1       # s1 = n    
+
+    li $t0, 0           # j = 0
+    li $v0, 0           # det(A) = 0
+
+    addi $t1, $s1, -1   # t1 = n - 1
+    mult $t1, $t1
+    mflo $t1            # t1 = (n - 1)^2
+    move $a0, $t1       # a0 = (n - 1)^2
+    jal mallocInStack   # allocating space for submatrix
+    move $t6, $v0       # moving base address of submatrix array into t5
+
+    bne $s1, 1, ifor    # if n != 1 jump to ifor
+
+    lw $v0, ($s0)       # v0 : det(A) = a[0][0] if n==1
+
+    lw $ra, 8($sp)
+    lw $s0, 4($sp)
+    lw $s1, 0($sp)
+
+    addi $sp, $sp, 12   # deallocating
+    jr $ra              # return 
+
+    ifor:
+
+        move $a0, $t0
+        jal pushToStack             # saving j into stack
+
+        move $a0, $v0
+        jal pushToStack             # saving intermediate det(A) into stack
+
+        move $a0, $s0               # &array[0]
+        move $a1, $t6               # &submatrix[0][0]
+        move $a2, $t0               # column skip = j 
+        jal generateSubMatrix       # submatrix generation
+
+
+        move $a0, $t6               # t6 = &submatrix[0][0] 
+        addi $a1, $s1, -1           # n' = n - 1
+        jal recursive_Det           # recursive(subarray,n-1)
+        move $t1, $v0               # moving Det(B) into t0
+
+
+        lw $t0, 4($sp)              # t0 = j from stack
+        lw $v0, ($sp)               # loading intermediate (v0) det(A) from stack
+        addi $sp, $sp, 8            # deallocating space alloted to v0 and t0 
+
+        andi $t2, $t0, 1            # t2 = j & 1
+
+        beq $t2, 0, LL1             # if j is even , jump to LL1
+        sub $t1, $zero, $t1             # det(B) = - det(B) if j is odd
+
+        LL1:
+        
+        move $t2, $t0               # t2 = j
+        sll $t2, $t2, 2             # t2 *= 4
+        sub $t2, $s0, $t2           # t2 = &a[0][j]
+        lw $t2, 0($t2)              # t2 = a[0][j]
+
+        mult $t1, $t2               
+        mflo $t1                    # t1 = (-1)^j . A[0][j] . det(B) 
+        add $v0, $v0, $t1           # det(A) += t1
+
+        lw $t5, ($sp)               # loading base address of submatrix array from stack    
+
+        addi $t0, $t0, 1           # j++
+        blt $t0, $s1, ifor         # if j < n , loop
+
+    end_of_rec:
+        addi $s0, $s0, -1       # s0 = n - 1
+        mult $s0, $s0           
+        mflo $s0                # s0 = (n - 1)^2
+        sll $s0, $s0, 2         # s0 *= 4
+        add $sp, $sp, $s0       # deallocating space for submatrix
+
+        lw $ra, 8($sp)
+        lw $s0, 4($sp)
+        lw $s1, 0($sp)
+        addi $sp, $sp, 12   # deallocating
+        jr $ra              # return 
+
+
 
 printMatrix:
     li $t0, 0 # i = 0 
@@ -218,8 +292,8 @@ end2:
 generateSubMatrix:
     # a0 = &array[0]
     # a1 = &submatrix[0]
-    # a2 = n (3)
-    # a3 = column_skip (0)
+    # a2 = n 
+    # a3 = column_skip 
 
     li $t0, 1       # i = 1 
     li $t1, 0       # j = 0
@@ -227,13 +301,13 @@ generateSubMatrix:
     asloop1:
         asloop2:
 
-            addi $t2, $t0, -1   # i' = i - 1 (0) 0
-            move $t3, $t1       # j' = j (0) 1
+            addi $t2, $t0, -1   # i' = i - 1 
+            move $t3, $t1       # j' = j 
 
             beq $t1, $a3, counterplus   # if j = column_skip jump to counterplus
 
             blt $t1, $a3, assignval    
-            addi $t3, $t3, -1           # j'-- if j > column_skip j' = 0
+            addi $t3, $t3, -1           # j'-- if j > column_skip 
             
             assignval:
 
