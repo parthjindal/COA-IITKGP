@@ -93,7 +93,7 @@ end:
     la $a0, newline      # print newline
     syscall
 
-    lw $a0, -8($fp)
+    lw $a0, -8($fp)      # n
     addi $a0, $a0, -1    # a0 = n - 1    
     mult $a0, $a0
     mflo $a0             # a0 = (n-1)^2
@@ -107,7 +107,7 @@ end:
 
     lw $a0, -8($fp)     # n
     addi $a0, $a0, -1   # n-1
-    lw $a1, 0($sp)      # base address of array
+    move $a1, $v0       # base address of array
     jal printMatrix     # call to function printMatrix
 
     li $v0, 4          
@@ -218,8 +218,8 @@ end2:
 generateSubMatrix:
     # a0 = &array[0]
     # a1 = &submatrix[0]
-    # a2 = n 
-    # a3 = column_skip
+    # a2 = n (3)
+    # a3 = column_skip (0)
 
     li $t0, 1       # i = 1 
     li $t1, 0       # j = 0
@@ -227,29 +227,29 @@ generateSubMatrix:
     asloop1:
         asloop2:
 
-            addi $t2, $t0, -1   # i' = i - 1
-            move $t3, $t1       # j' = j
+            addi $t2, $t0, -1   # i' = i - 1 (0) 0
+            move $t3, $t1       # j' = j (0) 1
 
             beq $t1, $a3, counterplus   # if j = column_skip jump to counterplus
 
-            blt $t1, $a3, assignval 
-            addi $t3, $t3, -1           # j'-- if j > column_skip
+            blt $t1, $a3, assignval    
+            addi $t3, $t3, -1           # j'-- if j > column_skip j' = 0
             
             assignval:
 
-            mult $t0, $a2               
+            mult $t0, $a2                
             mflo $t4                    # t4 = n*i 
             add $t4, $t4, $t1           # t4 = n*i + j
             sll $t4, $t4, 2             
-            add $t4, $t4, $a0           # t4 = &array[i][j]
+            sub $t4, $a0, $t4           # t4 = &array[i][j]
             lw $t4, 0($t4)              # t4 = array[i][j]       
             
-            addi $t5, $a2, -1
+            addi $t5, $a2, -1           
             mult $t2, $t5               
-            mflo $t5                    # t4 = (n-1)*i' 
-            add $t5, $t5, $t3           # t4 = (n-1)*i' + j'
+            mflo $t5                    # t5 = (n-1)*i' 
+            add $t5, $t5, $t3           # t5 = (n-1)*i' + j'
             sll $t5, $t5, 2             
-            add $t5, $t5, $a1           # t5 = &submatrix[i'][j']
+            sub $t5, $a1, $t5           # t5 = &submatrix[i'][j']
     
             sw $t4, 0($t5)              # submatrix[i'][j'] = array[i][j]
 
@@ -263,6 +263,7 @@ generateSubMatrix:
             blt $t1, $a2, asloop2       # if j < n loop
         
         addi $t0, $t0, 1                # i++
+        li $t1, 0                       # j = 0
         blt $t0, $a2, asloop1           # if i < n loop
 
     jr $ra
