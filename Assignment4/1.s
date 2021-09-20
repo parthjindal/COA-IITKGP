@@ -1,41 +1,25 @@
-#	Assignment : 4
-#	Group No.: 24
-# 	Members: Pranav Rajput(19CS30036), Parth Jindal(19CS30031)
-#	Semester: Autumn, 2021
-#	Question: 2
-#	Description: Program to recursively sort an array and recursively search for an element 
+# Program to Compute an Array A and it's determinant of GP Series with initial value a and common ratio r, Print the array and determinant
+# Author: Parth Jindal, Pranav Rajput
+# Date: 18/09/2021
+# Assignment: Lab-4
+#-------------------------------------------------------------------------------
 
-    .data
+	.data
 
-array:                  # space allocation for an array of 10 integers (4*10 = 40 bytes)
-    .space 40
-
-input_prompt:
-    .asciiz "Enter the array elements:\n"
-
-output_msg:
-    .asciiz "\nSorted array:\n"
-
-input_prompt2:
-    .asciiz "Enter n (element to be searched): "
-
+# program output text constants
+prompt1:
+	.asciiz "Enter four positive integers n, m, a and r: \n"
+prompt2:
+    .asciiz "Array A (GP) with initial value a and common ratio r:\n"
+prompt3:
+    .asciiz "Final determinant of matrix A is: "    
 newline:
     .asciiz "\n"
-
-found_msg:
-    .asciiz " is FOUND in the array at index "
-
-not_found_msg:
-    .asciiz " is NOT FOUND in the array\n"
-
 space:
     .asciiz " "
-
-end_line:
-    .asciiz " .\n"
-
     .text
-    .globl main
+
+    .globl  main
 
 main:
     move $s0, $ra   # save return address to push later after initializing stack frame
@@ -44,78 +28,131 @@ main:
     move $a0, $s0   # $a0 = $ra
     jal pushToStack # push ra to stack
 
-    la $a0, input_prompt    # loading address of string into a0
-    li $v0, 4               # setting v0 to 4 for print_string
+    li $v0, 4           
+    la $a0, prompt1 # print prompt1
     syscall
 
-    la $t0, array       # loading address of array into temporary register
-    li $t1, 0           # loop counter(i) = 0
+    li $v0, 5       # read n
+    syscall        
+    move $a0, $v0   # save n in $a1
+    jal pushToStack # push n onto stack
 
-input_loop:             # loop to input the value of array
+    li $v0, 5       # read a
+    syscall
+    move $a0, $v0   # save a in $a2
+    jal pushToStack # push a onto stack
 
-    addi $t1, $t1, 1    # incrementing loop counter i++
+    li $v0, 5       # read r
+    syscall
+    move $a0, $v0   # save r in $a3
+    jal pushToStack # push r onto stack
 
-    li $v0, 5           # setting v0 to 5 to input integer  
-    syscall             # system call
-
-    move $t2, $v0       # moving read value(array[i]) to temporary register
-    sw $t2, 0($t0)      # array[i] = input_value ; storing value in t1 at address in t0
-
-    add $t0, $t0, 4     # incrementing t0 by 4 bytes so that it can point at position of next element
-
-    blt $t1, 10, input_loop # branch to input_loop if t1(i) < 10
+    li $v0, 5       # read m
+    syscall
+    move $a0, $v0   # save m in $a3
+    jal pushToStack # push m onto stack    
     
-    la $a0, array       # moving address of array into a0 (parameter 1)
-    li $a1, 0           # l = 0 (parameter 2)
-    li $a2, 9           # r = 9 (parameter 3)
-    jal recursive_sort
-PL:   
-    la $a0, output_msg  # loading address of string to a0
-    li $v0, 4           # setting v0 to 4 for print_string
-    syscall             # system call to print_string
 
-    la $a0, array       # laoding array address
-    jal printArray      # printing sorted array
+    # compute product of n and n
+    lw $t0, -8($fp)     # n
+    mult $t0, $t0 
+    mflo $t0            # store product in $t0 = n * n
 
-    la $a0, newline     # loading address of string into a0
-    li $v0, 4           # setting v0 to 4 for print_string
-    syscall             # system call to print_string
+    move $a0, $t0       # save product in $a0 call mallocInStack
+    jal mallocInStack 
+    move $s0, $v0        # save address of array A in $s0
 
-search_section:
+    # fill array in row major fashion with a geometric progression of 
+    # initial value a and common ratio r
+    lw $t0, -8($fp)     # n
+    mult $t0, $t0       # compute product n*n
+    mflo $t0
 
-    la $a0, input_prompt2    # loading address of string into a0
-    li $v0, 4               # setting v0 to 4 for print_string
+    li $t2, 0           # i = 0 (iterator)
+    lw $t3, -12($fp)    # $t3 = a
+    lw $t4, -16($fp)    # $t4 = r
+    lw $t5, -20($fp)    # $t5 = m
+
+    div $t3, $t5
+    mfhi $t3            # a = a%m
+    div $t4, $t5
+    mfhi $t5            # r = r%m
+
+# loop to fill array in row major fashion with a geometric progression of 
+# initial value a and common ratio r
+for:
+    beq $t2, $t0, end # if i == n * n, break
+    sll $t1, $t2, 2   # i * 4
+    sub $t5, $s0, $t1 # $t5 = address of array[i] 
+    sw $t3, 0($t5)    # array[i] = a*r^i
+    mult $t3, $t4     # a * r
+    mflo $t3          # a = a * r
+    
+    lw $t5, -20($fp)  # t5 = m
+    div $t3, $t5      # (a^ri)%m
+    mfhi $t3          # t3 = (a^ri)%m
+    addi $t2, $t2, 1  # i = i + 1
+    j for
+# end loop
+
+end:
+    li $v0, 4         
+    la $a0, prompt2     # print prompt2
     syscall
 
-    li $v0, 5
-    syscall             # read n (element to be searched)
-    move $s5, $v0
+    lw $a0, -8($fp)     # n
+    move $a1, $s0       # base address of array
+    jal printMatrix     # call to function printMatrix
 
-    la $a0, array       # loading array address into a1
-    li $a1, 0           # start =  0
-    li $a2, 9           # end = 9
-    move $a3, $s5       # load key (n) into a3
-
-    jal recursive_search
-    move $s0, $v0       # moving index to s0
-
-    move $a0, $s5
-    li $v0, 1           # print n (key)
+    li $v0, 4          
+    la $a0, newline      # print newline
     syscall
 
-    beq $s0, -1, if_not_found
+    lw $a0, -8($fp)      # n
+    addi $a0, $a0, -1    # a0 = n - 1    
+    mult $a0, $a0
+    mflo $a0             # a0 = (n-1)^2
+    jal mallocInStack    # malloc 
 
-    la $a0, found_msg       # loading address of string into a0
-    li $v0, 4               # setting v0 to 4 for print_string
-    syscall 
+    move $a0, $s0       # a0 = &array[0]
+    move $a1, $v0       # a1 = &submatrix[0]
+    lw $a2, -8($fp)     # a2 = n
+    li $a3, 0           # column skip
+    jal generateSubMatrix
 
-    addi $a0, $s0, 1        # moving index to a0 and also converting to base 1
-    li $v0, 1               # printing index
+    lw $a0, -8($fp)     # n
+    addi $a0, $a0, -1   # n-1
+    move $a1, $v0       # base address of array
+    jal printMatrix     # call to function printMatrix
+
+    li $v0, 4          
+    la $a0, newline      # print newline
     syscall
 
-    la $a0, newline         # loading address of string into a0
-    li $v0, 4               # setting v0 to 4 for print_string
-    syscall 
+    lw $a0, -8($fp)
+    addi $a0, $a0, -1   # a0 = n-1
+    mult $a0, $a0
+    mflo $a0            # a0 = (n-1)^2
+    sll $a0, $a0, 2
+    add $sp, $sp, $a0   # deallocating 
+
+    lw $a0, -8($fp)     # n
+    move $a1, $s0       # base address of array
+    jal recursive_Det   # call to function recursive_Det
+
+    move $t0, $v0       # moving value returned by det (v0) to t0  
+
+    li $v0, 4
+    la $a0, prompt3     # print prompt3
+    syscall
+
+    li $v0, 1
+    move $a0, $t0       # printing determinant of matrix
+    syscall
+
+    li $v0, 4          
+    la $a0, newline      # print newline
+    syscall
 
 exit:
     lw $ra, -4($fp)     # restore ra
@@ -124,125 +161,10 @@ exit:
     addi $sp, 4         # pop return address
     
     jr $ra
-
-if_not_found:
-    la $a0, not_found_msg   # loading address of string into a0
-    li $v0, 4               # setting v0 to 4 for print_string
-    syscall
-
-    j exit
+    # li $v0, 10          # setting v0 to 10 for exit function
+    # syscall             # system call to exit function
 
 
-
-recursive_sort:
-
-    move $t0, $a0       # s0: base address of a
-
-    # save arguments(left,right) to stack for recursive call
-    # note: no need to store base address as that gets restored from s0
-    # total: 24 bytes stored on stack
-    move $a0, $ra       # $a0 = $ra
-    jal pushToStack     # push ra to stack
-
-    move $a0, $a1
-    jal pushToStack     # push left to stack
-
-    move $a0, $a2
-    jal pushToStack     # push right to stack
-
-    move $a0, $s0       # push callee save register s0
-    jal pushToStack     # 
-
-    move $a0, $s1       # push callee save register s1
-    jal pushToStack     
-    
-    move $a0, $s2       # push callee save register s2
-    jal pushToStack     
-
-    move $s0, $t0       # base address
-    move $s1, $a1       # l = left
-    move $s2, $a2       # r = right
-
-    outer_while:
-        bge $s1, $s2, L3     # if (l >= r, break)
-        
-        while1:
-            lw  $t0, 12($sp)        # t0 = right
-            bge $s1, $t0, while2    # (l >= right, break)
-            sll $t2, $s1, 2         # t2 = l * 4
-            add $t2, $t2, $s0       # t2 = &a[l]
-            lw  $t3, 0($t2)         # t3 = a[l]
-            
-            lw  $t0, 16($sp)        # t0 = p
-            sll $t2, $t0, 2         # t2 = p * 4
-            add $t2, $t2, $s0       # t2 = &a[p]
-            lw  $t4, 0($t2)         # t4 = a[p]
-    
-            bgt $t3, $t4  while2    # a[l] > a[p], break
-            addi $s1, 1             # l++
-        
-            j while1
-        
-        while2:
-            lw  $t0, 16($sp)        # t0 = left
-            ble $s2, $t0, L1        # (r <= left, break)
-            sll $t2, $s2, 2         # t2 = r * 4
-            add $t2, $t2, $s0       # t2 = &a[r]
-            lw  $t3, 0($t2)         # t3 = a[r]
-            
-            lw  $t0, 16($sp)        # t0 = p
-            sll $t2, $t0, 2         # t2 = p * 4
-            add $t2, $t2, $s0       # t2 = &a[p]
-            lw  $t4, 0($t2)         # t4 = a[p]
-
-            blt $t3, $t4, L1        # a[r] < a[p], break
-            addi $s2, -1            # r--
-        
-            j while2
-        L1:
-            blt $s1, $s2, L2        # if l < r , goto L2
-
-            lw  $t0, 16($sp)        # t0 = p 
-            sll $t0, $t0, 2         # t0 = p * 4
-            add $t0, $t0, $s0       # t0 = &a[p]
-
-            sll $t1, $s2, 2         # t1 = r * 4
-            add $t1, $t1, $s0       # t1 = &a[r]
-
-            move $a0, $t0           # load argument 1 
-            move $a1, $t1           # load argument 2
-            jal SWAP                # swap(array[p], array[r])
-
-            move $a0, $s0           # arg1 = &a[0]
-            lw   $a1, 16($sp)       # arg2 = left
-            addi $a2, $s2, -1       # arg3 = r-1
-            jal recursive_sort      
-
-            move $a0, $s0           # arg1 = &a[0]
-            addi $a1, $s2, 1        # arg2 = r + 1
-            lw   $a2, 12($sp)       # arg3 = right
-            jal recursive_sort
-
-            j L3                    # cleanup stack and restore save registers
-        L2:
-            sll $t0, $s1, 2         # t0 = l * 4 
-            add $t0, $t0, $s0       # t0 = &a[l]
-
-            sll  $t1, $s2, 2        # t1 = r * 4 
-            add  $t1, $t1, $s0      # t1 = &a[r]
-
-            move $a0, $t0           # arg1 = &a[l]           
-            move $a1, $t1           # arg2 = &a[r]
-            jal SWAP                # swap(a[l], a[r])
-
-        j outer_while
-    L3:
-        lw $ra, 20($sp)
-        lw $s0, 8($sp)
-        lw $s1, 4($sp)
-        lw $s2, 0($sp)
-        addi $sp, $sp, 24
-        jr $ra
 
 initStack:
     addi $sp, $sp, -4   # decrement stack pointer by 4
@@ -255,156 +177,108 @@ pushToStack:
     sw $a0, 0($sp)      # push a0 onto stack
     jr $ra              # return
 
-SWAP:
-    lw $t0, 0($a0)      # temp1 = a
-    lw $t1, 0($a1)       # temp2 = b
+mallocInStack:
+    sll $t0, $a0, 2     # $t0 = 4 * $a0
+    move $v0, $sp       # $v0 = $sp
+    sub $sp, $sp, $t0   # $sp = $sp - $t0
+    addi $v0, $v0, -4   # $v0 = $v0 - 4
+    jr $ra              # return
 
-    sw $t0, 0($a1)       # b = temp1
-    sw $t1, 0($a0)       # a = temp2
+popFromStack:
+    lw $v0, 0($sp) 
+
+recursive_Det:
+    li $v0, 0 
+    jr $ra
+
+printMatrix:
+    li $t0, 0 # i = 0 
+    li $t1, 0 # j = 0
+    # print matrix in row major fashion with newline after each row
+    move $t5, $a0        # store n in $t5
+
+for2:
+    beq $t0, $t5, end2  # if i == n break
+    mult $t0, $t5       # i * n
+    mflo $t2            # $t2 = i * n
+for1:
+    beq $t1, $t5, end1  # if j == n break
+    add $t3, $t2, $t1   # $t3 = i * n + j
+
+    sll $t3, $t3, 2     # $t3 = 4 * $t3
+    sub $t4, $a1, $t3   # base address of array - (i * n + j)*4
+    lw  $t3, 0($t4)     # load array[i * n + j]
+    
+    li  $v0 , 1         # print array[i * n + j]
+    move $a0, $t3       
+    syscall
+
+    li $v0, 4
+    la $a0, space       # print space
+    syscall
+
+    addi $t1, $t1, 1   # j = j + 1
+    j for1             # jump to for1
+end1:
+    li $v0, 4          # print newline
+    la $a0, newline      
+    syscall
+    
+    addi $t0, 1        # i = i + 1
+    li $t1, 0          # j = 0
+    j for2             # jump to for2
+end2: 
+    jr $ra             # return
+
+generateSubMatrix:
+    # a0 = &array[0]
+    # a1 = &submatrix[0]
+    # a2 = n (3)
+    # a3 = column_skip (0)
+
+    li $t0, 1       # i = 1 
+    li $t1, 0       # j = 0
+
+    asloop1:
+        asloop2:
+
+            addi $t2, $t0, -1   # i' = i - 1 (0) 0
+            move $t3, $t1       # j' = j (0) 1
+
+            beq $t1, $a3, counterplus   # if j = column_skip jump to counterplus
+
+            blt $t1, $a3, assignval    
+            addi $t3, $t3, -1           # j'-- if j > column_skip j' = 0
+            
+            assignval:
+
+            mult $t0, $a2                
+            mflo $t4                    # t4 = n*i 
+            add $t4, $t4, $t1           # t4 = n*i + j
+            sll $t4, $t4, 2             
+            sub $t4, $a0, $t4           # t4 = &array[i][j]
+            lw $t4, 0($t4)              # t4 = array[i][j]       
+            
+            addi $t5, $a2, -1           
+            mult $t2, $t5               
+            mflo $t5                    # t5 = (n-1)*i' 
+            add $t5, $t5, $t3           # t5 = (n-1)*i' + j'
+            sll $t5, $t5, 2             
+            sub $t5, $a1, $t5           # t5 = &submatrix[i'][j']
+    
+            sw $t4, 0($t5)              # submatrix[i'][j'] = array[i][j]
+
+            # lw $a0, ($t5)
+            # li $v0, 1
+            # syscall
+
+            counterplus:
+
+            addi $t1, $t1, 1            # j++
+            blt $t1, $a2, asloop2       # if j < n loop
+        
+        addi $t0, $t0, 1                # i++
+        li $t1, 0                       # j = 0
+        blt $t0, $a2, asloop1           # if i < n loop
 
     jr $ra
-printArray:
-    li $t0, 0           # i = 0
-    move $t1, $a0       # moving base address of array into t1
-for_loop:
-    lw $t2, ($t1)       # loading value at address t1 into t2 (a[i])
-
-    li $v0, 1           # setting v0 to 1 for print_int
-    move $a0, $t2       # moving t2(a[i]) into a0
-    syscall             # system call to print_int
-
-    addi $t0, $t0, 1    # i++
-    addi $t1, $t1, 4    # shifting pointer to a[i + 1] for next iteration
-
-    la $a0, space       # loading address of string space
-    li $v0, 4           
-    syscall             # system call to print_string
-
-    blt $t0, 10, for_loop   # if i < 10 keep looping 
-
-    la $a0, newline     # loading address of string newline
-    li $v0, 4           
-    syscall             # system call to print_string
-
-    jr $ra              # jumping back to initial address
-
-recursive_search:
-
-
-    move $t0, $a0       # s0: base address of a
-
-    # save arguments(start,end,array,key) to stack for recursive call
-    # note: no need to store base address and key as that gets restored from s0
-    # total: 28 bytes stored on stack
-    move $a0, $ra       # $a0 = $ra
-    jal pushToStack     # push ra to stack
-
-    move $a0, $a1
-    jal pushToStack     # push start to stack
-
-    move $a0, $a2
-    jal pushToStack     # push end to stack
-
-    move $a0, $s0       # push callee save register s0
-    jal pushToStack     
-
-    move $a0, $s1       # push callee save register s1
-    jal pushToStack     
-    
-    move $a0, $s2       # push callee save register s2
-    jal pushToStack
-
-    move $a0, $s3       # push callee save register s3
-    jal pushToStack
-
-    move $s0, $t0       # base address 
-
-    move $s1, $a1
-    sll $s1, $s1, 1
-    add $s1, $s1, $a2 
-    li $t0, 3
-    div $s1, $t0
-    mflo $s1            # mid1 = (2*start + end)/3
-
-    move $s2, $a2
-    sll $s2, $s2, 1
-    add $s2, $s2, $a1
-    li $t0, 3
-    div $s2, $t0
-    mflo $s2            # mid2 = (start + 2*end)/3
-
-    move $s3, $a3       # s3 = key
-
-    while:
-        lw $a1, 20($sp)
-        lw $a2, 16($sp)
-        bgt $a1, $a2, key_not_found      # if start > end break
-
-        # setting params for recursive call
-        # some parameters will be changed acc, to conditions
-        move $a0, $s0                   # a0 = &array[0]
-        # a1 = start (already setup)
-        # ar = end (already setup)
-        move $a3, $s3                   # a3 = key
-
-        move $t0, $s1
-        sll $t0, $t0, 2
-        add $t0, $t0, $s0               # t0 = & array[mid1]
-        lw $t0, ($t0)
-
-        move $t1, $s2
-        sll $t1, $t1, 2
-        add $t1, $t1, $s0               # t1 = & array[mid2]
-        lw $t1, ($t1)
-
-        bne $t0, $s3, c1                # if key != a[mid1] go to c1
-            # if key == a[mid1]
-            move $v0, $s1               # v0 = mid1
-            j function_end              # return v0
-
-        c1:
-        bne $t1, $s3, c2                # if key != a[mid2] go to c3
-            # if key == a[mid2]
-            move $v0, $s2               # v0 = mid2
-            j function_end              # return v0
-
-        c2:
-        bge $s3, $t0, c3                # if key >= a[mid1] go to c3
-            # if key < a[mid1]
-            addi $a2, $s1, -1           # end' = mid1 - 1
-            j rec_call                  # make recursive call 
-
-        c3:
-        ble $s3, $t1, c4                # if key <= a[mid2] go to c4
-            # if key > a[mid2]
-            addi $a1, $s2, 1            # start' = mid2 + 1
-            j rec_call                  # recursive call
-
-        c4:
-            # a[mid1] < key < a[mid2]
-            addi $a1, $s1, 1            # start' = mid1 + 1
-            addi $a2, $s2, -1           # end' = mid2 - 1
-
-        rec_call:               # make recursive call
-            jal recursive_search
-            j function_end      # jump to function end
-
-        j while     # keep looping
-
-    key_not_found:
-    li $v0, -1  # if not found, return -1
-
-    function_end:
-        # reloading values from stack
-        lw $ra, 24($sp)
-        lw $a1, 20($sp)
-        lw $a2, 16($sp)
-        lw $s0, 12($sp)
-        lw $s1, 8($sp)
-        lw $s2, 4($sp)
-        lw $s3, 0($sp)
-        # deallocation
-        addi $sp, $sp, 28
-        #return to callee
-        jr $ra
-
