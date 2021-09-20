@@ -108,33 +108,6 @@ end:
     la $a0, newline      # print newline
     syscall
 
-    lw $a0, -8($fp)      # n
-    addi $a0, $a0, -1    # a0 = n - 1    
-    mult $a0, $a0
-    mflo $a0             # a0 = (n-1)^2
-    jal mallocInStack    # malloc 
-
-    move $a0, $s0       # a0 = &array[0]
-    move $a1, $v0       # a1 = &submatrix[0]
-    lw $a2, -8($fp)     # a2 = n
-    li $a3, 0           # column skip
-    jal generateSubMatrix
-
-    lw $a0, -8($fp)     # n
-    addi $a0, $a0, -1   # n-1
-    move $a1, $v0       # base address of array
-    jal printMatrix     # call to function printMatrix
-
-    li $v0, 4          
-    la $a0, newline      # print newline
-    syscall
-
-    lw $a0, -8($fp)
-    addi $a0, $a0, -1   # a0 = n-1
-    mult $a0, $a0
-    mflo $a0            # a0 = (n-1)^2
-    sll $a0, $a0, 2
-    add $sp, $sp, $a0   # deallocating 
 
     lw $a0, -8($fp)     # n
     move $a1, $s0       # base address of array
@@ -188,8 +161,99 @@ popFromStack:
     lw $v0, 0($sp) 
 
 recursive_Det:
-    li $v0, 0 
-    jr $ra
+
+    # a0 = n ( parameter 1 : n )
+    # a1 = $array[0] ( parameter 2 : base address of array )
+
+    move $t0, $a0               # saving a0 (n) temporarily
+
+    move $a0, $ra
+    jal pushToStack             # return address saved
+
+    move $a0, $s0
+    jal pushToStack             # callee register 1 saved
+
+    move $a0, $s1
+    jal pushToStack             # callee register 2 saved
+
+    move $a0, $s2
+    jal pushToStack             # callee register 3 saved
+
+    move $a0, $s3
+    jal pushToStack             # callee register 4 saved 
+
+    move $s0, $t0               # s0 = n 
+    move $s1, $a1               # s1 = &a[0][0]
+    li $s2, 0                   # s2 = j = 0 ( initially )
+    li $s3, 0                   # s3 = det(a) = 0 ( initially )
+
+    bne $s0, 1, det_loop        # if (s0) n != 1 jump to det_loop
+
+    # if n == 1
+
+        # returning the only element by moving it into v0
+        lw $v0, ($s1)              # v0 = &a[0][0]
+        lw $v0, 0($v0)          # v0 = a[0][0]
+
+    det_loop:
+
+        # dynamic memory allocation for the submatrix
+        addi $t0, $s0, -1
+        mult $t0, $t0       # (n - 1)^ 2
+        mflo $a0            # loading (n-1)^2 into a0
+        jal mallocInStack
+        # v0 contains the base address of alloted submatrix
+
+        # setting values in submatrix
+        move $a0, $s1       # a0: matrix base address = &a[0][0]
+        move $a1, $v0       # a1: submatrix base address = &b[0][0] (v0)
+        move $a2, $s0       # a2: n ( size of a )
+        move $a3, $s2       # a3: column_skip = j
+        jal generateSubMatrix
+
+        addi $a0, $s0, -1   # n' = n - 1
+        move $a1, $v0       # array base address for submatrix ($v0)
+        jal recursive_Det
+        # v0 holds the value det(b)
+        
+        #freeing dynamically allocated memory
+        addi $t0, $s0, -1   # t0 = n - 1
+        mult $t0, $t0
+        mflo $t0            # t0 = (n - 1)^2
+        sll $t0, $t0, 2     # t0 *= 4
+        add $sp, $sp, $t0   # moving stack pointer; deallocating
+
+        andi $t0, $s2, 1        # t0 = j & 1 [j = s2]  
+        beq $t0, 0, eval_val    # if t0 = 0 ( j is even go to eval_val )
+
+        # if j is odd 
+            sub $v0, $zero, $v0  # det(b) = -det(b) if j is odd 
+
+        eval_val:
+            sll $t0, $s2, 2     # t0 = 4*j
+            sub $t0, $s1, $t0   # t0 = &array[0][j]
+            lw $t0, 0($t0)      # t0 = array[0][j]
+
+            mult $v0, $s0       # (-1)^j . det(b) . a[0][j]
+            mflo $v0            # v0 =  (-1)^j . a[0][j] . det(b) 
+            add $s3, $s3, $v0   # s3 += v0 ( s3 : det(A) )
+
+        addi $s2, $s2, 1        # j++
+        blt $s2, $s0, det_loop  # if (s2) j < (s0) n , keep looping        
+
+    move $v0, $s3               # ( return value ) v0 = det(A)
+
+    eof:
+        #loading values into registers from stack memory
+        lw $ra, 16($sp)
+        lw $s0, 12($sp)
+        lw $s1, 8($sp)
+        lw $s2, 4($sp)
+        lw $s3, 0($sp)
+
+        addi $sp, $sp, 20    # deallocating by incrementing stack pointer
+
+        jr $ra              # return to callee
 
 printMatrix:
     li $t0, 0 # i = 0 
