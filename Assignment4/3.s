@@ -341,10 +341,11 @@ recursive_search:
         bgt $a1, $a2, key_not_found      # if start > end break
 
         # setting params for recursive call
-        move $a0, $s0
-        move $a1, $s1
-        move $a2, $s2
-        move $a3, $s3
+        # some parameters will be changed acc, to conditions
+        move $a0, $s0                   # a0 = &array[0]
+        # a1 = start (already setup)
+        # ar = end (already setup)
+        move $a3, $s3                   # a3 = key
 
         move $t0, $s1
         sll $t0, $t0, 2
@@ -356,39 +357,45 @@ recursive_search:
         add $t1, $t1, $s0               # t1 = & array[mid2]
         lw $t1, ($t1)
 
-        bne $t0, $s3, c1 
-            move $v0, $s1
-            j function_end
+        bne $t0, $s3, c1                # if key != a[mid1] go to c1
+            # if key == a[mid1]
+            move $v0, $s1               # v0 = mid1
+            j function_end              # return v0
 
         c1:
-        bne $t1, $s3, c2
-            move $v0, $s2
-            j function_end 
+        bne $t1, $s3, c2                # if key != a[mid2] go to c3
+            # if key == a[mid2]
+            move $v0, $s2               # v0 = mid2
+            j function_end              # return v0
 
         c2:
-        bge $s3, $t0, c3 
-            addi $a2, $s1, -1
-            j rec_call
+        bge $s3, $t0, c3                # if key >= a[mid1] go to c3
+            # if key < a[mid1]
+            addi $a2, $s1, -1           # end' = mid1 - 1
+            j rec_call                  # make recursive call 
 
         c3:
-        ble $s3, $t1, c4
-            addi $a1, $s2, 1
-            j rec_call
+        ble $s3, $t1, c4                # if key <= a[mid2] go to c4
+            # if key > a[mid2]
+            addi $a1, $s2, 1            # start' = mid2 + 1
+            j rec_call                  # recursive call
 
         c4:
-            addi $a1, $s1, 1
-            addi $a2, $s2, -1
+            # a[mid1] < key < a[mid2]
+            addi $a1, $s1, 1            # start' = mid1 + 1
+            addi $a2, $s2, -1           # end' = mid2 - 1
 
-        rec_call:
+        rec_call:               # make recursive call
             jal recursive_search
-            j function_end 
+            j function_end      # jump to function end
 
-        j while 
+        j while     # keep looping
 
     key_not_found:
-    li $v0, -1
+    li $v0, -1  # if not found, return -1
 
     function_end:
+        # reloading values from stack
         lw $ra, 24($sp)
         lw $a1, 20($sp)
         lw $a2, 16($sp)
@@ -396,5 +403,7 @@ recursive_search:
         lw $s1, 8($sp)
         lw $s2, 4($sp)
         lw $s3, 0($sp)
+        # deallocation
         addi $sp, $sp, 28
+        #return to callee
         jr $ra
