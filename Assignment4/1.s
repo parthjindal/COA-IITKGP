@@ -22,10 +22,10 @@ space:
     .globl  main
 
 main:
-    move $s0, $ra    # save return address to push later after initializing stack frame
+    move $s0, $ra   # save return address to push later after initializing stack frame
     jal initStack   # initialize stack
 
-    move $a0, $s0    # $a0 = $ra
+    move $a0, $s0   # $a0 = $ra
     jal pushToStack # push ra to stack
 
     li $v0, 4           
@@ -34,17 +34,17 @@ main:
 
     li $v0, 5       # read n
     syscall        
-    move $a0, $v0    # save n in $a1
+    move $a0, $v0   # save n in $a1
     jal pushToStack # push n onto stack
 
     li $v0, 5       # read a
     syscall
-    move $a0, $v0    # save a in $a2
+    move $a0, $v0   # save a in $a2
     jal pushToStack # push a onto stack
 
     li $v0, 5       # read r
     syscall
-    move $a0, $v0    # save r in $a3
+    move $a0, $v0   # save r in $a3
     jal pushToStack # push r onto stack
     
 
@@ -55,7 +55,7 @@ main:
 
     move $a0, $t0       # save product in $a0 call mallocInStack
     jal mallocInStack 
-    move $s0 $v0        # save address of array A in $s0
+    move $s0, $v0        # save address of array A in $s0
 
     # fill array in row major fashion with a geometric progression of 
     # initial value a and common ratio r
@@ -92,6 +92,34 @@ end:
     li $v0, 4          
     la $a0, newline      # print newline
     syscall
+
+    lw $a0, -8($fp)
+    addi $a0, $a0, -1    # a0 = n - 1    
+    mult $a0, $a0
+    mflo $a0             # a0 = (n-1)^2
+    jal mallocInStack    # malloc 
+
+    move $a0, $s0       # a0 = &array[0]
+    move $a1, $v0       # a1 = &submatrix[0]
+    lw $a2, -8($fp)     # a2 = n
+    li $a3, 0           # column skip
+    jal generateSubMatrix
+
+    lw $a0, -8($fp)     # n
+    addi $a0, $a0, -1   # n-1
+    lw $a1, 0($sp)      # base address of array
+    jal printMatrix     # call to function printMatrix
+
+    li $v0, 4          
+    la $a0, newline      # print newline
+    syscall
+
+    lw $a0, -8($fp)
+    addi $a0, $a0, -1   # a0 = n-1
+    mult $a0, $a0
+    mflo $a0            # a0 = (n-1)^2
+    sll $a0, $a0, 2
+    add $sp, $sp, $a0   # deallocating 
 
     lw $a0, -8($fp)     # n
     move $a1, $s0       # base address of array
@@ -141,6 +169,13 @@ mallocInStack:
     addi $v0, $v0, -4   # $v0 = $v0 - 4
     jr $ra              # return
 
+popFromStack:
+    lw $v0, 0($sp) 
+
+recursive_Det:
+    li $v0, 0 
+    jr $ra
+
 printMatrix:
     li $t0, 0 # i = 0 
     li $t1, 0 # j = 0
@@ -180,142 +215,54 @@ end1:
 end2: 
     jr $ra             # return
 
+generateSubMatrix:
+    # a0 = &array[0]
+    # a1 = &submatrix[0]
+    # a2 = n 
+    # a3 = column_skip
 
-recursive_Det:          # recursive function to calculate determinant of matrix via laplace method
+    li $t0, 1       # i = 1 
+    li $t1, 0       # j = 0
 
-    jal pushToStack     # pushing original n to stack
+    asloop1:
+        asloop2:
 
-    move $s0, $a0       # moving n into s0
+            addi $t2, $t0, -1   # i' = i - 1
+            move $t3, $t1       # j' = j
 
-    move $a0, $a1       # moving address of array into a0
-    jal pushToStack     # pushing address of array into stack
+            beq $t1, $a3, counterplus   # if j = column_skip jump to counterplus
 
-    move $s1, $a1       # moving address of array into s1
+            blt $t1, $a3, assignval 
+            addi $t3, $t3, -1           # j'-- if j > column_skip
+            
+            assignval:
 
-    move $a0, $ra       # moving return address into a0
-    jal pushToStack     # pushing return address (initial state into stack)
+            mult $t0, $a2               
+            mflo $t4                    # t4 = n*i 
+            add $t4, $t4, $t1           # t4 = n*i + j
+            sll $t4, $t4, 2             
+            add $t4, $t4, $a0           # t4 = &array[i][j]
+            lw $t4, 0($t4)              # t4 = array[i][j]       
+            
+            addi $t5, $a2, -1
+            mult $t2, $t5               
+            mflo $t5                    # t4 = (n-1)*i' 
+            add $t5, $t5, $t3           # t4 = (n-1)*i' + j'
+            sll $t5, $t5, 2             
+            add $t5, $t5, $a1           # t5 = &submatrix[i'][j']
+    
+            sw $t4, 0($t5)              # submatrix[i'][j'] = array[i][j]
 
-   # jr $ra              # returning to next statement from call point
+            # lw $a0, ($t5)
+            # li $v0, 1
+            # syscall
 
-    bne $s0, 1, L1      # if n != 1 jump to L1
+            counterplus:
 
-    lw $v0, ($s1)       # load value of a[0][0] into return register v0
-    addi $sp, $sp, 12   # popping elements
-    jr $ra              # jumping back to caller
+            addi $t1, $t1, 1            # j++
+            blt $t1, $a2, asloop2       # if j < n loop
+        
+        addi $t0, $t0, 1                # i++
+        blt $t0, $a2, asloop1           # if i < n loop
 
-L1:
-    li $t2, 0           # i = 0
-    li $t3, 1           # sign = 1
-    li $v0, 0           # det(A) = 0 
-
-outer_loop:
-    move $a0, $t2
-    jal pushToStack     # pushing i onto stack
-
-    move $a0, $v0
-    jal pushToStack     # pushing v0 onto stack
-
-    move $a0, $t2       # param1 = i
-
-    lw $t0, 0($sp)       # param2 = n
-    move $a1, $t0     
-
-    lw $a2, -4($sp)     # param3 = &array[0][0]
-
-    addi $t0, $s0, -1   # t0 = n - 1
-    mult $t0, $t0
-    mflo $t0            # t0 = (n-1)*(n-1)
-
-    move $a0, $t0
-    jal mallocInStack   
-    move $a3, $v0       # param3: empty n-1 *n-1 array address into a2       
-
-    jal sub_matrix      # calling submatrix
-    move $a1, $v0       # moving address of submatrix into a1
-
-    addi $t0, $s0, -1   # t0 = n - 1
-    mult $t0, $t0
-    mflo $t0            # t0 = (n-1)*(n-1)
-    sll $t0, $t0, 2     # t0 = 4*t0
-    add $sp, $sp, $t0   # deallocating space for submatrix
-
-    lw $a0, 0($sp)       # loading n into $a0
-
-    jal recursive_Det   # recursive call  
-    move $t0, $v0       # moving returned value into t0
-
-    lw $t2, -12($sp)    # loading i from stack
-    lw $v0, -16($sp)    # loading v0 from stack 
-    addi $sp, $sp, 8   # pop
-
-    andi $t1, $t2, 1    # t1 = i & 1
-    beq $t1, 0, L2      # if i is even jump to L2
-    sub $t0, $zero, $t0 # M[0, i] = -M[0, i]
-
-L2:
-    add $t0, $t0, $zero     # M[0, i] = +M[0, i]
-
-    lw $s1,-4($sp)
-
-    sll $t1, $t2, 2         # i = i * 4
-    lw $t3, -4($sp)         # loading address of array from stack into t3
-    add $t3, $t3, $s1      # pointing to A[0][i]
-
-    lw $t3, ($t3)           # moving value at address in t3(A[0][i]) into t3
-    mult $t0, $t3           # (-1)^j*M[0, i]*A[0][i]
-    mflo $t0             
-
-    add $v0, $v0, $t0       # adding (-1)^j*M[0, i]*A[0][i] into existing value
-
-    addi $t2, $t2, 1        # i++ 
-
-    lw $s0, 0($sp)          # loading n from stack
-
-    blt $t2, $s0, outer_loop    # if i < n keep looping
-
-    # return 
-    lw $ra, -8($sp)
-    addi $sp, $sp, 12
-    jr $ra              # jumping back to caller
-
-
-sub_matrix:
-    #   a0 = column_skip
-    #   a1 = n
-    #   a2 = &array[0]
-    #   a3 = &submatrix[0]
-    li $t0, 1 # i = 1 (skipping first row for sub-matrix)
-    li $t1, 0 # j = 0
-for3:
-    beq $t0, $a1, end3  # if i == n break
-    mult $t0, $a1       # i * n
-    mflo $t2            # $t2 = i * n
-for4:
-    beq $t1, $a0, L5  # if j == column_skip break
-    beq $t1, $a1, end4  # if j == n break
-    add $t3, $t2, $t1   # i * n + j
-    sll $t3, $t3, 2     # (i * n + j) * 4
-    sub $t4, $a2, $t3   # base address of array - (i * n + j)*4
-    lw  $t3, 0($t4)     # load array[i * n + j] into $t6
-
-    addi $t4, $t0, -1   # t4 = i - 1
-    move $t5, $t1       # t5 = j
-    blt $t1, $a0, L4    # if j < column_skip goto L4
-    addi $t5, $t5, -1   # t5 = j - 1
-L4:
-    mult $t4, $a1       # t4 = (i-1)*n
-    mflo $t4            # 
-    add $t5, $t1, $t4   # t5 = (i-1)*n + j'
-    sll $t5, $t5, 2     # t5 = t5*4
-    sub $t5, $a3, $t5   # t5 = &subm[i-1][j']
-    sw $t3, 0($t5)      # subm[i-1][j'] = array[i][j]
-L5:
-    addi $t1, $t1, 1    # j = j + 1
-    j for4              # jump to for1
-end4:
-    addi $t0, $t0, 1    # i = i + 1
-    li  $t1, 0          # j = 0
-    j for3              # jump to for2
-end3:
-    move $v0, $a3       #
-    jr $ra              # return
+    jr $ra
