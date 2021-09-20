@@ -3,7 +3,7 @@
 # 	Members: Pranav Rajput(19CS30036), Parth Jindal(19CS30031)
 #	Semester: Autumn, 2021
 #	Question: 2
-#	Description: Program to print sorted array using recursive sort function
+#	Description: Program to recursively sort an array and recursively search for an element 
 
     .data
 
@@ -14,13 +14,25 @@ input_prompt:
     .asciiz "Enter the array elements:\n"
 
 output_msg:
-    .asciiz "Sorted array:\n"
+    .asciiz "\nSorted array:\n"
+
+input_prompt2:
+    .asciiz "Enter n (element to be searched): "
 
 newline:
     .asciiz "\n"
 
+found_msg:
+    .asciiz " is FOUND in the array at index "
+
+not_found_msg:
+    .asciiz " is NOT FOUND in the array\n"
+
 space:
     .asciiz " "
+
+end_line:
+    .asciiz " .\n"
 
     .text
     .globl main
@@ -68,6 +80,43 @@ PL:
     la $a0, newline     # loading address of string into a0
     li $v0, 4           # setting v0 to 4 for print_string
     syscall             # system call to print_string
+
+search_section:
+
+    la $a0, input_prompt2    # loading address of string into a0
+    li $v0, 4               # setting v0 to 4 for print_string
+    syscall
+
+    li $v0, 5
+    syscall             # read n (element to be searched)
+    move $s5, $v0
+
+    la $a0, array       # loading array address into a1
+    li $a1, 0           # start =  0
+    li $a2, 9           # end = 9
+    move $a3, $s5       # load key (n) into a3
+
+    jal recursive_search
+    move $s0, $v0       # moving index to s0
+
+    move $a0, $s5
+    li $v0, 1           # print n (key)
+    syscall
+
+    beq $s0, -1, if_not_found
+
+    la $a0, found_msg       # loading address of string into a0
+    li $v0, 4               # setting v0 to 4 for print_string
+    syscall 
+
+    addi $a0, $s0, 1        # moving index to a0 and also converting to base 1
+    li $v0, 1               # printing index
+    syscall
+
+    la $a0, newline         # loading address of string into a0
+    li $v0, 4               # setting v0 to 4 for print_string
+    syscall 
+
 exit:
     lw $ra, -4($fp)     # restore ra
     move $sp, $fp       # restore stack pointer
@@ -75,12 +124,22 @@ exit:
     addi $sp, 4         # pop return address
     
     jr $ra
+
+if_not_found:
+    la $a0, not_found_msg   # loading address of string into a0
+    li $v0, 4               # setting v0 to 4 for print_string
+    syscall
+
+    j exit
+
+
+
 recursive_sort:
 
     move $t0, $a0       # s0: base address of a
 
     # save arguments(left,right) to stack for recursive call
-    # note: no need to store base address as that get's restored from s0
+    # note: no need to store base address as that gets restored from s0
     # total: 24 bytes stored on stack
     move $a0, $ra       # $a0 = $ra
     jal pushToStack     # push ra to stack
@@ -228,3 +287,114 @@ for_loop:
     syscall             # system call to print_string
 
     jr $ra              # jumping back to initial address
+
+recursive_search:
+
+
+    move $t0, $a0       # s0: base address of a
+
+    # save arguments(start,end,array,key) to stack for recursive call
+    # note: no need to store base address and key as that gets restored from s0
+    # total: 28 bytes stored on stack
+    move $a0, $ra       # $a0 = $ra
+    jal pushToStack     # push ra to stack
+
+    move $a0, $a1
+    jal pushToStack     # push start to stack
+
+    move $a0, $a2
+    jal pushToStack     # push end to stack
+
+    move $a0, $s0       # push callee save register s0
+    jal pushToStack     
+
+    move $a0, $s1       # push callee save register s1
+    jal pushToStack     
+    
+    move $a0, $s2       # push callee save register s2
+    jal pushToStack
+
+    move $a0, $s3       # push callee save register s3
+    jal pushToStack
+
+    move $s0, $t0       # base address 
+
+    move $s1, $a1
+    sll $s1, $s1, 1
+    add $s1, $s1, $a2 
+    li $t0, 3
+    div $s1, $t0
+    mflo $s1            # mid1 = (2*start + end)/3
+
+    move $s2, $a2
+    sll $s2, $s2, 1
+    add $s2, $s2, $a1
+    li $t0, 3
+    div $s2, $t0
+    mflo $s2            # mid2 = (start + 2*end)/3
+
+    move $s3, $a3       # s3 = key
+
+    while:
+        lw $a1, 20($sp)
+        lw $a2, 16($sp)
+        bgt $a1, $a2, key_not_found      # if start > end break
+
+        # setting params for recursive call
+        move $a0, $s0
+        move $a1, $s1
+        move $a2, $s2
+        move $a3, $s3
+
+        move $t0, $s1
+        sll $t0, $t0, 2
+        add $t0, $t0, $s0               # t0 = & array[mid1]
+        lw $t0, ($t0)
+
+        move $t1, $s2
+        sll $t1, $t1, 2
+        add $t1, $t1, $s0               # t1 = & array[mid2]
+        lw $t1, ($t1)
+
+        bne $t0, $s3, c1 
+            move $v0, $s1
+            j function_end
+
+        c1:
+        bne $t1, $s3, c2
+            move $v0, $s2
+            j function_end 
+
+        c2:
+        bge $s3, $t0, c3 
+            addi $a2, $s1, -1
+            j rec_call
+
+        c3:
+        ble $s3, $t1, c4
+            addi $a1, $s2, 1
+            j rec_call
+
+        c4:
+            addi $a1, $s1, 1
+            addi $a2, $s2, -1
+
+        rec_call:
+            jal recursive_search
+            j function_end 
+
+        j while 
+
+    key_not_found:
+    li $v0, -1
+
+    function_end:
+        lw $ra, 24($sp)
+        lw $a1, 20($sp)
+        lw $a2, 16($sp)
+        lw $s0, 12($sp)
+        lw $s1, 8($sp)
+        lw $s2, 4($sp)
+        lw $s3, 0($sp)
+        addi $sp, $sp, 28
+        jr $ra
