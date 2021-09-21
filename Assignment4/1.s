@@ -8,7 +8,7 @@
 
 # program output text constants
 prompt1:
-	.asciiz "Enter four positive integers n, m, a and r: \n"
+	.asciiz "Enter four positive integers n, a, r and m: \n"
 prompt2:
     .asciiz "Array A (GP) with initial value a and common ratio r:\n"
 prompt3:
@@ -192,8 +192,8 @@ recursive_Det:
     # if n == 1
 
         # returning the only element by moving it into v0
-        lw $v0, ($s1)              # v0 = &a[0][0]
-        lw $v0, 0($v0)          # v0 = a[0][0]
+        lw $v0, 0($s1)              # v0 = a[0][0]
+        j eof
 
     det_loop:
 
@@ -232,9 +232,9 @@ recursive_Det:
         eval_val:
             sll $t0, $s2, 2     # t0 = 4*j
             sub $t0, $s1, $t0   # t0 = &array[0][j]
-            lw $t0, 0($t0)      # t0 = array[0][j]
+            lw  $t0,  0($t0)      # t0 = array[0][j]
 
-            mult $v0, $s0       # (-1)^j . det(b) . a[0][j]
+            mult $v0, $t0       # (-1)^j . det(b) . a[0][j]
             mflo $v0            # v0 =  (-1)^j . a[0][j] . det(b) 
             add $s3, $s3, $v0   # s3 += v0 ( s3 : det(A) )
 
