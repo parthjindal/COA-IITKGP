@@ -152,9 +152,8 @@ pushToStack:
 
 mallocInStack:
     sll $t0, $a0, 2     # $t0 = 4 * $a0
-    move $v0, $sp       # $v0 = $sp
     sub $sp, $sp, $t0   # $sp = $sp - $t0
-    addi $v0, $v0, -4   # $v0 = $v0 - 4
+    move $v0, $sp       # v0 contains the base address
     jr $ra              # return
 
 popFromStack:
