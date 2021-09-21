@@ -83,7 +83,7 @@ main:
 for:
     beq $t2, $t0, end # if i == n * n, break
     sll $t1, $t2, 2   # i * 4
-    sub $t5, $s0, $t1 # $t5 = address of array[i] 
+    add $t5, $s0, $t1 # $t5 = address of array[i] 
     sw $t3, 0($t5)    # array[i] = a*r^i
     mult $t3, $t4     # a * r
     mflo $t3          # a = a * r
@@ -230,7 +230,7 @@ recursive_Det:
 
         eval_val:
             sll $t0, $s2, 2     # t0 = 4*j
-            sub $t0, $s1, $t0   # t0 = &array[0][j]
+            add $t0, $s1, $t0   # t0 = &array[0][j]
             lw  $t0,  0($t0)      # t0 = array[0][j]
 
             mult $v0, $t0       # (-1)^j . det(b) . a[0][j]
@@ -269,7 +269,7 @@ for1:
     add $t3, $t2, $t1   # $t3 = i * n + j
 
     sll $t3, $t3, 2     # $t3 = 4 * $t3
-    sub $t4, $a1, $t3   # base address of array - (i * n + j)*4
+    add $t4, $a1, $t3   # base address of array - (i * n + j)*4
     lw  $t3, 0($t4)     # load array[i * n + j]
     
     li  $v0 , 1         # print array[i * n + j]
@@ -319,7 +319,7 @@ generateSubMatrix:
             mflo $t4                    # t4 = n*i 
             add $t4, $t4, $t1           # t4 = n*i + j
             sll $t4, $t4, 2             
-            sub $t4, $a0, $t4           # t4 = &array[i][j]
+            add $t4, $a0, $t4           # t4 = &array[i][j]
             lw $t4, 0($t4)              # t4 = array[i][j]       
             
             addi $t5, $a2, -1           
@@ -327,7 +327,7 @@ generateSubMatrix:
             mflo $t5                    # t5 = (n-1)*i' 
             add $t5, $t5, $t3           # t5 = (n-1)*i' + j'
             sll $t5, $t5, 2             
-            sub $t5, $a1, $t5           # t5 = &submatrix[i'][j']
+            add $t5, $a1, $t5           # t5 = &submatrix[i'][j']
     
             sw $t4, 0($t5)              # submatrix[i'][j'] = array[i][j]
 
