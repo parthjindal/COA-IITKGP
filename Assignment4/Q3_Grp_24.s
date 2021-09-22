@@ -4,7 +4,7 @@
 #	Semester: Autumn, 2021
 #	Question: 2
 #	Description: Program to recursively sort an array and recursively search for an element 
-
+#   Note: The array is 0-indexed
     .data
 
 array:                  # space allocation for an array of 10 integers (4*10 = 40 bytes)
@@ -109,7 +109,7 @@ search_section:
     li $v0, 4               # setting v0 to 4 for print_string
     syscall 
 
-    addi $a0, $s0, 1        # moving index to a0 and also converting to base 1
+    move $a0, $s0           # move answer to a0
     li $v0, 1               # printing index
     syscall
 
