@@ -11,7 +11,10 @@ module testBench;
 
     // generating clock cycles with always loop
     always 
+        begin
         #2 clock = ~clock ;
+        $display("time = %d, input bit = %b, output bit = %b, reset = %b", $time, inpBit, outBit, reset) ;
+        end
 
     // Instantiating twoBitsComplement
    // twoBitsComplement inst (.outBit(bitOut), .inpBit(bitIn), .clock(clk), .reset(rst)) ;
@@ -20,12 +23,12 @@ module testBench;
     // testing with initial that runs at the start 
     initial 
         begin
-        $monitor("time = %b, input bit = %b, output bit = %b, carry over = %b, reset = %b", $time, inpBit, outBit, clock, reset) ;
-        reset = 1  ;
+        // $monitor("time = %d, input bit = %b, output bit = %b, reset = %b", $time, inpBit, outBit, reset) ;
+        #1 reset = 1  ;
         #2 reset = 0  ;
         #2 inpBit = 1 ;
-        #2 inpBit = 1 ;
         #2 inpBit = 0 ;
+        #2 inpBit = 1 ;
         #2 inpBit = 0 ;
         #2 inpBit = 1 ;
         #2 $finish ;
