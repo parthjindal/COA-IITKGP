@@ -5,7 +5,8 @@ module LFSR(seed, clkslow, rst)
     input [3:0] seed ;
     input clkslow ;
     input rst ;
-    input [4:0] w ;
+    
+    wire [4:0] w ;
 
     // wire for intermediate
     wire [3:0] wint ;
