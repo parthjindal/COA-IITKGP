@@ -6,6 +6,10 @@ input d0, d1, sel ;
 
 //output 
 output out ;
+reg out ;
 
-assign out = (sel) ? d1 : d0 ;
+always @(sel or d0 or d1)
+begin
+    out = (sel) ? d1 : d0 ;
+end
 endmodule
