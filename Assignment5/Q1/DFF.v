@@ -1,21 +1,17 @@
-`timescale 10ns/1ps
-
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Assignment: 05
+// Engineeer: Parth Jindal, Pranav Rajput Group 024
+// Module Name: DFF 
+//////////////////////////////////////////////////////////////////////////////////
 module DFF(Q, D, clk, rst);
-    // input
-    input clk ;
-    input rst ;
-    input D ;
-
-    // output
-    output Q ;
-    reg Q ;
-
-    always @(posedge clk)
-    begin
-        if(rst)
-        Q <= 0 ;
-        else 
-        Q <= D ;
-    end
-
+	input D, clk, rst;
+	output reg Q;
+	always @(posedge clk or posedge rst)
+	begin
+		if(rst)
+			Q <= 0;
+		else
+			Q <= D;
+	end
 endmodule

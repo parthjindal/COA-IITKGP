@@ -1,33 +1,34 @@
-`timescale 10ns/1ps
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Assignment: 05
+// Engineeer: Parth Jindal, Pranav Rajput Group 024
+// Module Name: LFSR 
+// Description: Linear Feedback Shift Register 
+//////////////////////////////////////////////////////////////////////////////////
+module LFSR(
+    input [3:0] seed, 	// seed for the LFSR
+    input clk,			// clock
+    input rst,			// reset
+    input sel,			// select for loading the seed
+    output [3:0] out	// output of the LFSR
+    );
+	
+	// LFSR Logic //
+	
+	wire [0:3] wInt;	
+	wire[4:0] w;
+	
+	assign out = wInt;
+	assign w[0] = w[4] ^ w[3];
 
-module LFSR(nextBit, seed, clkslow, rst, sel);
-    // input
-    input [3:0] seed ;
-    input clkslow ;
-    input rst ;
-    input sel ;
-
-    output nextBit ;
-
-    // wire for intermediate
-    wire [5:1] w ;
-    wire [4:1] wint ;
-
-    mux m3(wint[1], w[1], seed[0], sel) ;
-    DFF dff3(w[2], wint[1], clkslow, rst) ;
-
-    mux m2(wint[2], w[2], seed[1], sel) ;
-    DFF dff2(w[3], wint[2], clkslow, rst) ;
-        
-    mux m1(wint[3], w[3], seed[2], sel) ;
-    DFF dff1(w[4], wint[3], clkslow, rst) ;
-
-    mux m0(wint[4], w[4], seed[3], sel) ;
-    DFF dff0(w[5], wint[4], clkslow, rst) ;
-
-    assign w[1] = w[4] ^ w[5] ;
-
-    assign nextBit = w[1] ;
-    
+	DFF DFF3(w[1],wInt[0],clk,rst);
+	DFF DFF2(w[2],wInt[1],clk,rst);
+	DFF DFF1(w[3],wInt[2],clk,rst);
+	DFF DFF0(w[4],wInt[3],clk,rst);
+	
+	MUX m3(wInt[0],w[0],seed[3],sel);
+	MUX m2(wInt[1],w[1],seed[2],sel);
+	MUX m1(wInt[2],w[2],seed[1],sel);
+	MUX m0(wInt[3],w[3],seed[0],sel);
+	
 endmodule
-

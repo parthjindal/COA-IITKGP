@@ -1,15 +1,15 @@
-`timescale 10ns/1ps
-
-module mux(out, d0, d1, sel);
-//input
-input d0, d1, sel ;
-
-//output 
-output out ;
-reg out ;
-
-always @(sel or d0 or d1)
-begin
-    out = (sel) ? d1 : d0 ;
-end
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Assignment: 05
+// Engineeer: Parth Jindal, Pranav Rajput Group 024
+// Module Name: MUX 
+// Description: 2-1 Multiplexer
+//////////////////////////////////////////////////////////////////////////////////
+module MUX(
+    output Out,
+    input d0,
+    input d1,
+    input sel
+    );
+	assign Out = (sel) ? d1 : d0;
 endmodule
