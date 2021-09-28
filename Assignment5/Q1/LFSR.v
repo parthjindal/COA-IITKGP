@@ -1,13 +1,13 @@
 `timescale 10ns/1ps
 
-module LFSR(nextbit, seed, clkslow, rst, sel);
+module LFSR(nextBit, seed, clkslow, rst, sel);
     // input
     input [3:0] seed ;
     input clkslow ;
     input rst ;
     input sel ;
 
-    output nextbit ;
+    output nextBit ;
 
     // wire for intermediate
     wire [5:1] w ;
@@ -27,6 +27,6 @@ module LFSR(nextbit, seed, clkslow, rst, sel);
 
     assign w[1] = w[4] ^ w[5] ;
 
-    assign q = w[1] ;
+    assign nextBit = w[1] ;
     
 endmodule
