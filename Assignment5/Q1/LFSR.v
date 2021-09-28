@@ -16,16 +16,16 @@ module LFSR(seed, clkslow, rst)
 
         assign w[0] = w[3] ^ w[4] ;
 
-        MUX m3 (wint[0], w[0], seed[0], sel) ;
+        mux m3 (wint[0], w[0], seed[0], sel) ;
         DFF dff3 (w[1], wint[0], clkslow, rst) ;
 
-        MUX m2 (wint[1], w[1], seed[1], sel) ;
+        mux m2 (wint[1], w[1], seed[1], sel) ;
         DFF dff2 (w[2], wint[1], clkslow, rst) ;
         
-        MUX m1 (wint[2], w[2], seed[2], sel) ;
+        mux m1 (wint[2], w[2], seed[2], sel) ;
         DFF dff1 (w[3], wint[2], clkslow, rst) ;
 
-        MUX m0 (wint[3], w[3], seed[3], sel) ;
+        mux m0 (wint[3], w[3], seed[3], sel) ;
         DFF dff3 (w[4], wint[3], clkslow, rst) ;
         
     end
