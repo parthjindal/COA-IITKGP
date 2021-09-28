@@ -30,3 +30,4 @@ module LFSR(nextBit, seed, clkslow, rst, sel);
     assign nextBit = w[1] ;
     
 endmodule
+
