@@ -1,6 +1,6 @@
 `timescale 10ns/1ps
 
-module LFSR(w, seed, clkslow, rst)
+module LFSR(seed, clkslow, rst)
     // input
     input [3:0] seed ;
     input clkslow ;
