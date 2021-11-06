@@ -21,8 +21,8 @@
 module Shifter(
 	 input [4:0] shamt,
 	 input [31:0] a,
-	 input type, // 0->logical, 1->arithmatic
-	 input dir,  // 0-> left, 1-> right
+	 input dir, // 0->logical, 1->arithmatic
+	 input type,  // 0-> left, 1-> right
 	 output [31:0] out
     );
 	 
