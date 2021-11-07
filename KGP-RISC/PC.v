@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date:    20:59:56 11/05/2021 
+// Create Date:    00:11:34 11/07/2021 
 // Design Name: 
-// Module Name:    Adder 
+// Module Name:    PC 
 // Project Name: 
 // Target Devices: 
 // Tool versions: 
@@ -18,13 +18,17 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module Adder(
-    input [31:0] a,
-	 input [31:0] b,
-	 output [31:0] sum,
-	 output carry
+module PC(
+    input [31:0] inp,
+	 input clk,
+	 input rst,
+	 output reg [31:0] out
     );
 	 
-	 assign {carry, sum} = a + b;
+	 always @(posedge clk) begin
+	    if (rst)
+		     out <= 10'b0;
+		 else out <= inp;
+	 end
 
 endmodule

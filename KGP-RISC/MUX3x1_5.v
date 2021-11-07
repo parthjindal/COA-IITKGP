@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date:    20:59:56 11/05/2021 
+// Create Date:    03:05:33 11/07/2021 
 // Design Name: 
-// Module Name:    Adder 
+// Module Name:    MUX3x1_5 
 // Project Name: 
 // Target Devices: 
 // Tool versions: 
@@ -18,13 +18,21 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module Adder(
-    input [31:0] a,
-	 input [31:0] b,
-	 output [31:0] sum,
-	 output carry
+module MUX3x1_5(
+	 input [4:0] inp1,
+	 input [4:0] inp2,
+	 input [4:0] inp3,
+	 input [1:0]sel,
+	 output reg [4:0] out
     );
 	 
-	 assign {carry, sum} = a + b;
+	 always @(*) begin
+	    if (sel == 2'b00)
+		     out = inp1;
+		 else if (sel == 2'b01)
+		     out = inp2;
+		 else
+		     out = inp3;
+	 end
 
 endmodule

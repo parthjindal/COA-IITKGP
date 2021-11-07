@@ -46,12 +46,10 @@ module Shifter(
 		  end
 	 end
 	 
-	 
 	 MUX2_1 m1(a, inp1, shamt[0], mOut1);
 	 MUX2_1 m2(mOut1, inp2, shamt[1], mOut2);
 	 MUX2_1 m4(mOut2, inp4, shamt[2], mOut4);
 	 MUX2_1 m8(mOut4, inp8, shamt[3], mOut8);
 	 MUX2_1 m16(mOut8, inp16, shamt[4], out);
     
-
 endmodule

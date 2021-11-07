@@ -39,12 +39,11 @@ module ALU(
 	 assign const1 = 32'd1;
 	 assign selA = op[2] ? const1 : a;
 	 
-	 
 	 wire [4:0] shiftIn; // shift-register input b/w shamt or b
 	 assign shiftIn = op[2] ? shamt : b[4:0]; // if op[2] == 1 shiftInput = shamt else b[4:0]
 	 
 	 assign rA = a;                                 // forward a itself
-	 Adder A1(selA, selB, 1'b0, rAdd, cOut);        // adder / complement
+	 Adder A1(selA, selB, rAdd, cOut);              // adder / complement
 	 assign rAnd = a & b;                           // and-op
 	 assign rXor = a ^ b;                           // xor-op
 	 Shifter S(shiftIn, a, op[1], op[0], rShift);   // shift-op

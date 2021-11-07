@@ -71,7 +71,6 @@ module ALU_tb;
 		a = -32'd2147483648; op = 4'b1011; shamt = 5'd16;  b = 32'd2; #10; // shift-right-arithmatic-variable 8 by 2 bits
 
 		// Add stimulus here
-
 	end
       
 endmodule

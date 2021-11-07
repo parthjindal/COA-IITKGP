@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date:    20:59:56 11/05/2021 
+// Create Date:    01:03:34 11/07/2021 
 // Design Name: 
-// Module Name:    Adder 
+// Module Name:    UpdatePC 
 // Project Name: 
 // Target Devices: 
 // Tool versions: 
@@ -18,13 +18,15 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module Adder(
-    input [31:0] a,
-	 input [31:0] b,
-	 output [31:0] sum,
-	 output carry
+module UpdatePC(
+    input [31:0] in,
+	 input lblSel,
+	 input jumpSel,
+	 input branch,
+	 input [25:0] label1,
+	 input [31:0] label2,
+	 output [31:0] 
     );
-	 
-	 assign {carry, sum} = a + b;
+
 
 endmodule
