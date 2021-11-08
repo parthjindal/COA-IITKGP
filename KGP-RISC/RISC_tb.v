@@ -4,15 +4,15 @@
 // Company: 
 // Engineer:
 //
-// Create Date:   18:36:35 11/05/2021
-// Design Name:   InstrMem
-// Module Name:   /home/parth/5th-Sem/Computer-Organization-and-Architecture-Laboratory/KGP-RISC/InstrMem_tb.v
+// Create Date:   03:59:06 11/08/2021
+// Design Name:   RISC
+// Module Name:   /home/parth/5th-Sem/Computer-Organization-and-Architecture-Laboratory/KGP-RISC/RISC_tb.v
 // Project Name:  KGP-RISC
 // Target Device:  
 // Tool versions:  
 // Description: 
 //
-// Verilog Test Fixture created by ISE for module: InstrMem
+// Verilog Test Fixture created by ISE for module: RISC
 //
 // Dependencies:
 // 
@@ -22,41 +22,38 @@
 // 
 ////////////////////////////////////////////////////////////////////////////////
 
-module InstrMem_tb;
+module RISC_tb;
 
 	// Inputs
 	reg clk;
-	reg [9:0] addra;
-
-	// Outputs
-	wire [31:0] douta;
-
+	reg rst;
+	wire [31:0] Oinstruct, OinstrAddr, OwriteData;
 	// Instantiate the Unit Under Test (UUT)
-	InstrMem uut (
-		.clka(clk), 
-		.addra(addra), 
-		.douta(douta)
+	RISC uut (
+		.clk(clk), 
+		.rst(rst),
+		.Oinstruct(Oinstruct),
+		.OinstrAddr(OinstrAddr),
+		.OwriteData(OwriteData)
 	);
 
 	initial begin
 		// Initialize Inputs
 		clk = 0;
-		addra = 0;
+		rst = 1;
 
 		// Wait 100 ns for global reset to finish
-		#100;
-
-		@(posedge clk)
-		addra = 10'd0;
-		
-		#10; addra = 10'd0;
-		#10; addra = 10'd1;
-		
+		#2;
+		rst = 0;
+		#8;
+		#200;
+		$finish;
 		// Add stimulus here
+
 	end
 	
 	always
-	#5 clk = ~clk;
-	   
+	#10 clk = ~clk;
+      
 endmodule
 

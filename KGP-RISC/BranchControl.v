@@ -26,9 +26,9 @@ module BranchControl(
 	 output out
     );
 	 
-	 wire b, bZero, bNZero, bNegate, bCarry, bNCarry;
+	 wire b, bZero, bNZero, bSign, bCarry, bNCarry;
 	 
-	 assign b = (opcode == 6'b101011) |(opcode == 6'b101000); 
+	 assign b = (opcode == 6'b101011) |(opcode == 6'b101000) | (opcode == 6'b100000); 
 	 assign bZero = (opcode == 6'b110001) & fZero;
 	 assign bNZero = (opcode == 6'b110010) & ~fZero;
 	 assign bSign = (opcode == 6'b110000) & fSign;

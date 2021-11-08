@@ -25,7 +25,7 @@ module PC(
 	 output reg [31:0] out
     );
 	 
-	 always @(posedge clk) begin
+	 always @(negedge clk or posedge rst) begin
 	    if (rst)
 		     out <= 10'b0;
 		 else out <= inp;

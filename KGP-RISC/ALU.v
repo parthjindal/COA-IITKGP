@@ -55,15 +55,17 @@ module ALU(
 		     result = rAnd;
 		  else if (op == 4'b0011)
 		     result = rXor;
-		  else if (op == 4'b0101 || op == 4'b0001) begin
+		  else if (op == 4'b0001) begin
 		     result = rAdd;
 			  fCarry = cOut;
 		  end
+		  else if (op == 4'b0101)
+			  result = rAdd;
 		  else
 		     result = rA;
 	 end
 	 
-	assign fZero = (result == 0);
+	assign fZero = (result == 32'b0);
 	assign fSign = result[31];
 
 endmodule

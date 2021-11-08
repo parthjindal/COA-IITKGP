@@ -2,14 +2,19 @@
 
 module RISC(
    input clk,
-	input rst
+   input rst,
+	output [31:0] Oinstruct,
+	output [31:0] OinstrAddr,
+	output [31:0] OwriteData
     );
 
 	wire [31:0] nxtInstrAddr, instrAddr; 
+	assign OinstrAddr = instrAddr;
 	PC pc(nxtInstrAddr, clk, rst, instrAddr);  //Program counter
 	
 	wire [31:0] instruct;
-	InstrMem IM(clk, instrAddr[9:0], instruct);     //Instruction memory
+	assign Oinstruct = instruct;
+	InstrMem IM(clk, {2'b0,instrAddr[9:2]}, instruct);     //Instruction memory (memory referencing in 4 bytes)  
 	 
 	// Control lines from controller
 	wire fZero, fNegative, fCarry; // flags from ALU
@@ -34,6 +39,7 @@ module RISC(
 	// Register-file 32-bit wide 32 registers	
 	wire [4:0] writeAddr;
 	wire [31:0] writeData, readData1, readData2;
+	assign OwriteData = writeData;
 	
 	wire [4:0] ra;
 	assign ra = 5'b11111;
@@ -46,6 +52,8 @@ module RISC(
 		rt,
 		writeAddr,
 		writeData,
+		clk,
+		rst,
 		readData1,
 		readData2
 		);
@@ -139,5 +147,5 @@ module RISC(
 	MUX2_1 mJmpSel(lblSelOut, readData1, jmpSel, jmpSelOut);
 	MUX2_1 mBrnchSel(pc4, jmpSelOut, fBranch, nxtInstrAddr);
 	
-	MUX3_1 mMemToReg(pc4, memData, aluResult, memToReg, writeData);
+	MUX3_1 mMemToReg(aluResult, memData, pc4, memToReg, writeData);
 endmodule
