@@ -19,7 +19,6 @@ def parse_labels(source_file):
         for line in f:
             line = line.strip()
             if line == '' or line[0] == ';':
-                print('Skipping line: {}'.format(line))
                 continue
             m = LABEL_RE.match(line)
             if m:
@@ -41,7 +40,7 @@ def main(source_file, output_file):
         for lno, line in enumerate(f.readlines()):
             line = line.strip()
             if line == '' or line[0] == ';':
-                print('Skipping line: {}'.format(line))
+                # print('Skipping line: {}'.format(line))
                 continue
             elif LABEL_RE.match(line):
                 label = LABEL_RE.match(line).group('label')
@@ -51,7 +50,6 @@ def main(source_file, output_file):
                 continue
             else:
                 args = re.split(r'[\s,\(\)]+', line)
-
                 op = args[0]
                 if op in RFORMATS:  # r-format instructions
                     opcode = OPCODE[op]
@@ -109,12 +107,10 @@ def main(source_file, output_file):
                     label = args[1]
                     if label in LTABLE:
                         # pseudo-direct addressing
-                        prfx = bin((PC+4) & 0xF0000000)
-                        addr = LTABLE[label] - int(prfx, 2)
+                        addr = LTABLE[label]
                         addr = format(addr, '032b')
-                        instr = opcode << 26 | int(addr[4:-2])
+                        instr = opcode << 26 | int(addr[3:-2], 2)
                         instr = format(instr, '032b')
-
                         instructs.append(instr)
                     else:
                         raise Exception(
@@ -142,7 +138,6 @@ def main(source_file, output_file):
                         addr = LTABLE[label] - PC - 4
                         addr = (addr >> 2) & 0xFFFF
                         instr = opcode << 26 | rs << 21 | addr
-
                         instr = format(instr, '032b')
                         instructs.append(instr)
 
@@ -151,7 +146,6 @@ def main(source_file, output_file):
                             "Error: Label {} not defined at Line: {}".format(label, lno))
 
                 PC = PC + 4
-
     with open(output_file, 'w') as f:
         for instr in instructs:
             f.write(instr + '\n')

@@ -5,7 +5,9 @@ module RISC(
    input rst,
 	output [31:0] Oinstruct,
 	output [31:0] OinstrAddr,
-	output [31:0] OwriteData
+	output [31:0] OwriteData,
+	output [31:0] OaluResult,
+	output [31:0] OmemreadData
     );
 
 	wire [31:0] nxtInstrAddr, instrAddr; 
@@ -14,7 +16,8 @@ module RISC(
 	
 	wire [31:0] instruct;
 	assign Oinstruct = instruct;
-	InstrMem IM(clk, {2'b0,instrAddr[9:2]}, instruct);     //Instruction memory (memory referencing in 4 bytes)  
+	
+	InstrMem IM(clk, {2'b0,nxtInstrAddr[9:2]}, instruct);     //Instruction memory (memory referencing in 4 bytes)  
 	 
 	// Control lines from controller
 	wire fZero, fNegative, fCarry; // flags from ALU
@@ -34,7 +37,6 @@ module RISC(
 	assign rs      = instruct[25:21];
 	assign rt      = instruct[20:16];
 	assign imm     = instruct[15:0];
-
 
 	// Register-file 32-bit wide 32 registers	
 	wire [4:0] writeAddr;
@@ -96,6 +98,7 @@ module RISC(
 	);
 
 	wire [31:0] aluResult;
+	assign OaluResult = aluResult;
 	// ALU
 	ALU alu(
 		readData1,
@@ -125,14 +128,14 @@ module RISC(
 	wire [31:0] memData;
 	assign ena = fMemRead | fMemWrite;
 	DataMem dataMem(
-		clk,
+		~clk,
 		ena,
 		fMemWrite,
-		aluResult[9:0],
+		{2'b00, aluResult[9:2]}, // indexing / 4
 		readData2,
 		memData
 	);
-	
+	assign  OmemreadData = memData;
 	wire [31:0] pc4, jmpLabel, jmpImmLabel;
    
 	// ** PC-LOGIC ** 
@@ -143,7 +146,7 @@ module RISC(
 	// ** PC-LOGIC ** 
 	
 	wire [31:0] lblSelOut, jmpSelOut;
-	MUX2_1 mLblSel(jmpImmLabel, jmpLabel, lblSel, lblSelOut);
+	MUX2_1 mLblSel(jmpLabel, jmpImmLabel, lblSel, lblSelOut);
 	MUX2_1 mJmpSel(lblSelOut, readData1, jmpSel, jmpSelOut);
 	MUX2_1 mBrnchSel(pc4, jmpSelOut, fBranch, nxtInstrAddr);
 	

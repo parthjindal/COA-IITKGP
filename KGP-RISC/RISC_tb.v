@@ -27,14 +27,16 @@ module RISC_tb;
 	// Inputs
 	reg clk;
 	reg rst;
-	wire [31:0] Oinstruct, OinstrAddr, OwriteData;
+	wire [31:0] Oinstruct, OinstrAddr, OwriteData, OaluResult, OmemreadData;
 	// Instantiate the Unit Under Test (UUT)
 	RISC uut (
 		.clk(clk), 
 		.rst(rst),
 		.Oinstruct(Oinstruct),
 		.OinstrAddr(OinstrAddr),
-		.OwriteData(OwriteData)
+		.OwriteData(OwriteData),
+		.OaluResult(OaluResult),
+		.OmemreadData(OmemreadData)
 	);
 
 	initial begin
@@ -45,15 +47,14 @@ module RISC_tb;
 		// Wait 100 ns for global reset to finish
 		#2;
 		rst = 0;
-		#8;
-		#200;
+		#3;
+		#1240;
 		$finish;
 		// Add stimulus here
-
 	end
 	
 	always
-	#10 clk = ~clk;
+	#5 clk = ~clk;
       
 endmodule
 
