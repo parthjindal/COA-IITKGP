@@ -1,29 +1,23 @@
 `timescale 1ns / 1ps
 
 module RISC(
-   input clk,
-   input rst,
-	output [31:0] Oinstruct,
-	output [31:0] OinstrAddr,
-	output [31:0] OwriteData,
-	output [31:0] OaluResult,
-	output [31:0] OmemreadData
+    input clk,
+    input rst
     );
 
-	wire [31:0] nxtInstrAddr, instrAddr; 
-	assign OinstrAddr = instrAddr;
-	PC pc(nxtInstrAddr, clk, rst, instrAddr);  //Program counter
+	wire [31:0] nxtInstrAddr, instrAddr;		//Instruction addresses
+	PC pc(nxtInstrAddr, clk, rst, instrAddr);  	//Program counter
 	
-	wire [31:0] instruct;
-	assign Oinstruct = instruct;
+	wire [31:0] instruct;						//Current instruction
 	
-	InstrMem IM(clk, {2'b0,nxtInstrAddr[9:2]}, instruct);     //Instruction memory (memory referencing in 4 bytes)  
+	//Instruction memory (IM[i], i = PC/4)
+	InstrMem IM(clk, {2'b0,nxtInstrAddr[9:2]}, instruct); 
 	 
 	// Control lines from controller
 	wire fZero, fNegative, fCarry; // flags from ALU
 	wire aluSrc;                   // ALU source
 	wire fMemRead, fMemWrite;      // memory access flags
-	wire lblSel, jmpSel;            // label-select and jump-select
+	wire lblSel, jmpSel;           // label-select and jump-select
 	wire [1:0] regDst, memToReg;   // register destination and memory-to-register destination
 	wire regWrite;                 // register write flag
  
@@ -41,8 +35,6 @@ module RISC(
 	// Register-file 32-bit wide 32 registers	
 	wire [4:0] writeAddr;
 	wire [31:0] writeData, readData1, readData2;
-	assign OwriteData = writeData;
-	
 	wire [4:0] ra;
 	assign ra = 5'b11111;
 	
@@ -98,7 +90,7 @@ module RISC(
 	);
 
 	wire [31:0] aluResult;
-	assign OaluResult = aluResult;
+	wire carryOut;
 	// ALU
 	ALU alu(
 		readData1,
@@ -108,11 +100,13 @@ module RISC(
 		aluResult,
 		fZero,
 		fNegative,
-		fCarry
-	);
-
+		carryOut
+		);
+	
+	DFF Carry(carryOut, clk, rst, fCarry); // Store current carry value in DFF
+	
 	// Branch-controller to provide if it is valid to branch
-	wire fBranch;				   // branch flag
+	wire fBranch;				   	// branch flag
 	BranchControl bContrl(
 		opcode,
 		fZero,
@@ -128,27 +122,25 @@ module RISC(
 	wire [31:0] memData;
 	assign ena = fMemRead | fMemWrite;
 	DataMem dataMem(
-		~clk,
+		~clk,					 // Datamem read synchronous to clock so negedge used
 		ena,
 		fMemWrite,
 		{2'b00, aluResult[9:2]}, // indexing / 4
 		readData2,
 		memData
 	);
-	assign  OmemreadData = memData;
 	wire [31:0] pc4, jmpLabel, jmpImmLabel;
    
 	// ** PC-LOGIC ** 
-	// TODO: Create a module for the same ?
 	assign pc4 = instrAddr + 32'd4;
-	assign jmpLabel = {pc4[31:28], {instruct[25:0], 2'b00}};
-	assign jmpImmLabel = pc4 + {extendImm[29:0], 2'b00};
+	assign jmpLabel = {pc4[31:28], {instruct[25:0], 2'b00}};	// 26-bit Jump Label
+	assign jmpImmLabel = pc4 + {extendImm[29:0], 2'b00};        // 16-bit Jump Label
 	// ** PC-LOGIC ** 
 	
 	wire [31:0] lblSelOut, jmpSelOut;
-	MUX2_1 mLblSel(jmpLabel, jmpImmLabel, lblSel, lblSelOut);
-	MUX2_1 mJmpSel(lblSelOut, readData1, jmpSel, jmpSelOut);
-	MUX2_1 mBrnchSel(pc4, jmpSelOut, fBranch, nxtInstrAddr);
-	
-	MUX3_1 mMemToReg(aluResult, memData, pc4, memToReg, writeData);
+	MUX2_1 mLblSel(jmpLabel, jmpImmLabel, lblSel, lblSelOut);   // Select jump label
+	MUX2_1 mJmpSel(lblSelOut, readData1, jmpSel, jmpSelOut);    // Select label-type jump or register-value type jump
+	MUX2_1 mBrnchSel(pc4, jmpSelOut, fBranch, nxtInstrAddr);	// Select to branch or not
+
+	MUX3_1 mMemToReg(aluResult, memData, pc4, memToReg, writeData); // Mux for writeData for regfile
 endmodule

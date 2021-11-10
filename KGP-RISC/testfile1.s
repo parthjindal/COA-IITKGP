@@ -7,9 +7,9 @@ xor $3, $3 # i = 0
 xor $4, $4 
 addi $4, -3 # a = 3
 xor $5, $5
-addi $5, 2 # r = 2
+addi $5, -10 # r = 2
 xor $11, $11
-addi $11, 1
+addi $11, 2
 for:
     xor $6, $6
     add $6, $3
@@ -22,7 +22,7 @@ for:
     add $6, $3 # i < sizeof(arr)
     bnz $6, for
 endfor:
-    # dividing all elements by 2
+    # dividing all elements by 4 (stored in $11)
     xor $3, $3
     for2:
         xor $6, $6
@@ -30,7 +30,7 @@ endfor:
         shll $6, 2 # i*4
         add $6, $1 # &arr[i]
         lw $4, 0($6) # arr[i]
-        shrav $4, $11 # arr[i] * 2
+        shllv $4, $11 # arr[i] * 2
         sw $4, 0($6) # arr[i] = arr[i] * 2
         addi $3, 1 # i++
         comp $6, $2

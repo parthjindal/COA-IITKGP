@@ -1,3 +1,16 @@
+"""
+Assembler for KGP-RISC architecture
+Encoding for all instructions mentioned in the encoding module
+Control Flow:
+    1. Parse the source file to find all labels and store them in LTABLE
+    2. Parse the source file again to find all instructions and store them in INSTRUCTS
+    3. Write the instructions to the output file
+Example assembly code for a simple program:
+    xor $1, $1
+    addi $1, 1
+All 32 registers are referenced using $[0-31]
+"""
+
 import sys
 import regex as re
 import argparse
@@ -18,7 +31,7 @@ def parse_labels(source_file):
     with open(source_file, 'r') as f:
         for line in f:
             line = line.strip()
-            if line == '' or line[0] == ';':
+            if line == '' or line[0] == '#':
                 continue
             m = LABEL_RE.match(line)
             if m:
@@ -39,7 +52,7 @@ def main(source_file, output_file):
     with open(source_file, 'r') as f:
         for lno, line in enumerate(f.readlines()):
             line = line.strip()
-            if line == '' or line[0] == ';':
+            if line == '' or line[0] == '#':
                 # print('Skipping line: {}'.format(line))
                 continue
             elif LABEL_RE.match(line):
@@ -144,6 +157,8 @@ def main(source_file, output_file):
                     else:
                         raise Exception(
                             "Error: Label {} not defined at Line: {}".format(label, lno))
+                else:
+                    raise Exception('Error: Invalid instruction {}'.format(op))
 
                 PC = PC + 4
     with open(output_file, 'w') as f:

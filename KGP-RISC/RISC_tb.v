@@ -27,16 +27,10 @@ module RISC_tb;
 	// Inputs
 	reg clk;
 	reg rst;
-	wire [31:0] Oinstruct, OinstrAddr, OwriteData, OaluResult, OmemreadData;
 	// Instantiate the Unit Under Test (UUT)
 	RISC uut (
 		.clk(clk), 
-		.rst(rst),
-		.Oinstruct(Oinstruct),
-		.OinstrAddr(OinstrAddr),
-		.OwriteData(OwriteData),
-		.OaluResult(OaluResult),
-		.OmemreadData(OmemreadData)
+		.rst(rst)
 	);
 
 	initial begin
@@ -48,7 +42,7 @@ module RISC_tb;
 		#2;
 		rst = 0;
 		#3;
-		#1240;
+		#1340;
 		$finish;
 		// Add stimulus here
 	end
