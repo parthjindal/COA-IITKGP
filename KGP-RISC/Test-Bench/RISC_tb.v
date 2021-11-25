@@ -42,9 +42,16 @@ module RISC_tb;
 		#2;
 		rst = 0;
 		#3;
-		#1340;
+		#5000;
 		$finish;
 		// Add stimulus here
+	end
+	
+	always @(*) begin
+		if (uut.RFile.r[1] == 1) begin
+			$display("Content of return value register $v0: %d", uut.RFile.r[2]);
+			$finish;
+		end
 	end
 	
 	always
